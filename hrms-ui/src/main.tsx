@@ -5,7 +5,7 @@ import './index.css'
 import { API_BASE_URL, getTenantId } from './config.ts'
 
 // Intercept window.fetch globally to inject production API base URL and dynamic x-tenant-id from subdomain
-const originalFetch = window.fetch;
+const originalFetch = window.fetch.bind(window);
 window.fetch = async (input, init) => {
   let url = '';
   if (typeof input === 'string') {
@@ -13,7 +13,7 @@ window.fetch = async (input, init) => {
   } else if (input instanceof URL) {
     url = input.toString();
   } else {
-    url = input.url;
+    url = (input as Request).url;
   }
   
   // 1. Rewrite localhost backend URLs to the production API_BASE_URL
@@ -22,7 +22,7 @@ window.fetch = async (input, init) => {
   }
 
   // 2. Auto-inject tenant header
-  const newInit = { ...init };
+  const newInit = init ? { ...init } : {};
   const headers = new Headers(newInit.headers || {});
   
   if (!headers.has('x-tenant-id')) {
@@ -30,6 +30,7 @@ window.fetch = async (input, init) => {
   }
   newInit.headers = headers;
 
+  // Always pass the rewritten string URL so that replacements take effect
   return originalFetch(url, newInit);
 };
 
