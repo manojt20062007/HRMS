@@ -242,9 +242,25 @@ const checkPermission = (path: string | undefined): boolean => {
 
 export const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [openSubDropdown, setOpenSubDropdown] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  const handleDropdownToggle = (index: number) => {
+    setOpenDropdown(prev => prev === index ? null : index);
+    setOpenSubDropdown(null);
+  };
+
+  const handleSubDropdownToggle = (key: string) => {
+    setOpenSubDropdown(prev => prev === key ? null : key);
+  };
+
+  const closeAllDropdowns = () => {
+    setOpenDropdown(null);
+    setOpenSubDropdown(null);
+  };
 
   // Filter categories and children based on permissions
   const filteredNavCategories = navCategories
@@ -319,6 +335,7 @@ export const DashboardLayout = () => {
                     <NavLink
                       key={i}
                       to={cat.path!}
+                      onClick={closeAllDropdowns}
                       className={({ isActive }) =>
                         cn(
                           "px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors flex flex-row items-center gap-2 whitespace-nowrap flex-shrink-0",
@@ -332,59 +349,90 @@ export const DashboardLayout = () => {
                   );
                 }
 
+                const isOpen = openDropdown === i;
                 return (
-                  <div key={i} className="relative group">
-                    <button className="px-2.5 py-1.5 rounded-md text-[13px] font-medium text-slate-700 transition-colors group-hover:bg-[#C0A3FF] group-hover:text-slate-900 flex flex-row items-center gap-1.5 outline-none whitespace-nowrap flex-shrink-0">
+                  <div key={i} className="relative flex-shrink-0">
+                    <button
+                      onClick={() => handleDropdownToggle(i)}
+                      className={cn(
+                        "px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors flex flex-row items-center gap-1.5 outline-none whitespace-nowrap",
+                        isOpen ? "bg-[#C0A3FF] text-slate-900" : "text-slate-700 hover:bg-[#C0A3FF] hover:text-slate-900"
+                      )}
+                    >
                       <cat.icon className="h-4 w-4 flex-shrink-0" />
                       <span>{cat.name}</span>
-                      <ChevronDown className="h-3 w-3 opacity-50 flex-shrink-0" />
+                      <ChevronDown className={cn("h-3 w-3 opacity-50 flex-shrink-0 transition-transform", isOpen && "rotate-180")} />
                     </button>
 
-                    <div className="absolute left-0 top-full pt-1 hidden group-hover:block z-50">
-                      <div className="min-w-[220px] bg-white border border-border rounded-xl shadow-xl p-1.5 animate-fade-in">
-                        {cat.children?.map((child, j) => (
-                          <div key={j} className="relative group/subitem">
-                            <NavLink
-                              to={child.path || '#'}
-                              className={({ isActive }) => cn(
-                                "flex items-center justify-between px-3 py-2 text-[13px] rounded-lg cursor-pointer outline-none transition-colors group/link relative",
-                                isActive && !child.subChildren ? "text-indigo-600 font-semibold bg-indigo-50" : "text-slate-700 hover:bg-[#E3D4FF] hover:text-slate-900 group-hover/subitem:bg-[#E3D4FF] group-hover/subitem:text-slate-900"
-                              )}
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-300 group-hover/subitem:bg-slate-800 transition-colors" />
-                                <span className="whitespace-nowrap">{child.name}</span>
-                              </div>
-                              {child.subChildren && (
-                                <ChevronDown className="h-3 w-3 opacity-50" />
-                              )}
-                            </NavLink>
-
-                            {child.subChildren && (
-                              <div className="absolute left-full top-0 pl-1 hidden group-hover/subitem:block z-50">
-                                <div className="min-w-[200px] bg-white border border-border rounded-xl shadow-xl p-1.5 animate-fade-in">
-                                  {child.subChildren.map((sub: any, k) => (
+                    {isOpen && (
+                      <>
+                        {/* Backdrop to close on outside click */}
+                        <div className="fixed inset-0 z-40" onClick={closeAllDropdowns} />
+                        <div className="absolute left-0 top-full pt-1 z-50">
+                          <div className="min-w-[220px] bg-white border border-border rounded-xl shadow-xl p-1.5">
+                            {cat.children?.map((child, j) => {
+                              const subKey = `${i}-${j}`;
+                              const isSubOpen = openSubDropdown === subKey;
+                              return (
+                                <div key={j} className="relative">
+                                  {child.subChildren ? (
+                                    <>
+                                      <button
+                                        onClick={() => handleSubDropdownToggle(subKey)}
+                                        className={cn(
+                                          "w-full flex items-center justify-between px-3 py-2 text-[13px] rounded-lg cursor-pointer transition-colors",
+                                          isSubOpen ? "bg-[#E3D4FF] text-slate-900" : "text-slate-700 hover:bg-[#E3D4FF] hover:text-slate-900"
+                                        )}
+                                      >
+                                        <div className="flex items-center gap-2.5">
+                                          <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-300" />
+                                          <span className="whitespace-nowrap">{child.name}</span>
+                                        </div>
+                                        <ChevronDown className={cn("h-3 w-3 opacity-50 transition-transform", isSubOpen && "rotate-180")} />
+                                      </button>
+                                      {isSubOpen && (
+                                        <div className="pl-4 mt-0.5 border-l-2 border-indigo-100 ml-3">
+                                          {child.subChildren.map((sub: any, k) => (
+                                            <NavLink
+                                              key={k}
+                                              to={sub.path}
+                                              onClick={closeAllDropdowns}
+                                              className={({ isActive }) => cn(
+                                                "block px-3 py-2 text-[13px] rounded-lg cursor-pointer outline-none transition-colors",
+                                                isActive ? "text-indigo-600 font-semibold bg-indigo-50" : "text-slate-700 hover:bg-slate-50"
+                                              )}
+                                            >
+                                              <div className="flex items-center gap-2.5">
+                                                <div className="h-1 w-1 flex-shrink-0 rounded-full bg-slate-300" />
+                                                <span className="whitespace-nowrap">{sub.name}</span>
+                                              </div>
+                                            </NavLink>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </>
+                                  ) : (
                                     <NavLink
-                                      key={k}
-                                      to={sub.path}
+                                      to={child.path || '#'}
+                                      onClick={closeAllDropdowns}
                                       className={({ isActive }) => cn(
-                                        "block px-3 py-2 text-[13px] rounded-lg cursor-pointer outline-none hover:bg-slate-50 transition-colors group/sublink relative",
-                                        isActive ? "text-indigo-600 font-semibold bg-indigo-50" : "text-slate-700"
+                                        "flex items-center justify-between px-3 py-2 text-[13px] rounded-lg cursor-pointer outline-none transition-colors",
+                                        isActive ? "text-indigo-600 font-semibold bg-indigo-50" : "text-slate-700 hover:bg-[#E3D4FF] hover:text-slate-900"
                                       )}
                                     >
                                       <div className="flex items-center gap-2.5">
-                                        <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-300 group-hover/sublink:bg-[#C0A3FF] transition-colors" />
-                                        <span className="whitespace-nowrap">{sub.name}</span>
+                                        <div className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-300" />
+                                        <span className="whitespace-nowrap">{child.name}</span>
                                       </div>
                                     </NavLink>
-                                  ))}
+                                  )}
                                 </div>
-                              </div>
-                            )}
+                              );
+                            })}
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })}
