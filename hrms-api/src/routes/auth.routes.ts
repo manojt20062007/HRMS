@@ -16,29 +16,41 @@ router.post('/login', async (req: any, res: any) => {
       return res.status(400).json({ error: 'Mobile number and password are required' });
     }
 
-    // Find employee by mobileNumber
-    const employee = await prisma.employee.findFirst({
-      where: {
-        mobileNumber: phone
-      },
-      include: {
-        user: {
-          include: {
-            role: {
-              include: {
-                permissions: true,
+    let user: any = null;
+    let employeeProfile: any = null;
+
+    // Check if input is an email or mobile number
+    if (phone.includes('@')) {
+      user = await prisma.user.findUnique({
+        where: { email: phone },
+        include: {
+          role: {
+            include: { permissions: true }
+          },
+          employee: true
+        }
+      });
+      employeeProfile = user?.employee;
+    } else {
+      const employee = await prisma.employee.findFirst({
+        where: { mobileNumber: phone },
+        include: {
+          user: {
+            include: {
+              role: {
+                include: { permissions: true }
               }
             }
           }
         }
-      }
-    });
-
-    if (!employee || !employee.user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      });
+      user = employee?.user;
+      employeeProfile = employee;
     }
 
-    const user = employee.user;
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
@@ -62,12 +74,12 @@ router.post('/login', async (req: any, res: any) => {
     const { password: _, ...userWithoutPassword } = user;
     const responseUser = {
       ...userWithoutPassword,
-      employee: {
-        id: employee.id,
-        firstName: employee.firstName,
-        lastName: employee.lastName,
-        reportingToId: employee.reportingToId
-      }
+      employee: employeeProfile ? {
+        id: employeeProfile.id,
+        firstName: employeeProfile.firstName,
+        lastName: employeeProfile.lastName,
+        reportingToId: employeeProfile.reportingToId
+      } : null
     };
 
     res.json({
