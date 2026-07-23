@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   Menu, X, Bell, LayoutDashboard, Users, Calendar,
@@ -243,13 +244,21 @@ const checkPermission = (path: string | undefined): boolean => {
 export const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [dropdownPos, setDropdownPos] = useState<{ left: number; top: number } | null>(null);
   const [openSubDropdown, setOpenSubDropdown] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  const handleDropdownToggle = (index: number) => {
-    setOpenDropdown(prev => prev === index ? null : index);
+  const handleDropdownToggle = (index: number, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (openDropdown === index) {
+      setOpenDropdown(null);
+      setDropdownPos(null);
+    } else {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setDropdownPos({ left: rect.left, top: rect.bottom + 4 });
+      setOpenDropdown(index);
+    }
     setOpenSubDropdown(null);
   };
 
@@ -259,6 +268,7 @@ export const DashboardLayout = () => {
 
   const closeAllDropdowns = () => {
     setOpenDropdown(null);
+    setDropdownPos(null);
     setOpenSubDropdown(null);
   };
 
@@ -328,7 +338,7 @@ export const DashboardLayout = () => {
             </div>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center ml-4 gap-1 overflow-visible">
+            <nav className="hidden lg:flex items-center ml-4 gap-1 overflow-x-auto hide-scrollbar">
               {filteredNavCategories.map((cat, i) => {
                 if (!cat.isDropdown) {
                   return (
@@ -351,9 +361,9 @@ export const DashboardLayout = () => {
 
                 const isOpen = openDropdown === i;
                 return (
-                  <div key={i} className="relative flex-shrink-0">
+                  <div key={i} className="flex-shrink-0">
                     <button
-                      onClick={() => handleDropdownToggle(i)}
+                      onClick={(e) => handleDropdownToggle(i, e)}
                       className={cn(
                         "px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors flex flex-row items-center gap-1.5 outline-none whitespace-nowrap",
                         isOpen ? "bg-[#C0A3FF] text-slate-900" : "text-slate-700 hover:bg-[#C0A3FF] hover:text-slate-900"
@@ -364,17 +374,20 @@ export const DashboardLayout = () => {
                       <ChevronDown className={cn("h-3 w-3 opacity-50 flex-shrink-0 transition-transform", isOpen && "rotate-180")} />
                     </button>
 
-                    {isOpen && (
+                    {isOpen && dropdownPos && createPortal(
                       <>
                         {/* Backdrop to close on outside click */}
                         <div className="fixed inset-0 z-40" onClick={closeAllDropdowns} />
-                        <div className="absolute left-0 top-full pt-1 z-50">
+                        <div
+                          className="fixed z-50"
+                          style={{ left: dropdownPos.left, top: dropdownPos.top }}
+                        >
                           <div className="min-w-[220px] bg-white border border-border rounded-xl shadow-xl p-1.5">
                             {cat.children?.map((child, j) => {
                               const subKey = `${i}-${j}`;
                               const isSubOpen = openSubDropdown === subKey;
                               return (
-                                <div key={j} className="relative">
+                                <div key={j}>
                                   {child.subChildren ? (
                                     <>
                                       <button
@@ -431,7 +444,8 @@ export const DashboardLayout = () => {
                             })}
                           </div>
                         </div>
-                      </>
+                      </>,
+                      document.body
                     )}
                   </div>
                 );
