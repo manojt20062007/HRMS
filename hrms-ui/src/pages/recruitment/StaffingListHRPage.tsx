@@ -9,7 +9,7 @@ export const StaffingListHRPage = () => {
   const fetchRequests = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/recruitment/staffing?status=PENDING_HR', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setRequests(await response.json());
@@ -29,7 +29,7 @@ export const StaffingListHRPage = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/recruitment/staffing/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

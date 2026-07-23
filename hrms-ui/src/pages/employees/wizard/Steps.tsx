@@ -261,7 +261,7 @@ export const Step8Professional = ({ formData, handleChange }: any) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const tenantHeaders = { 'x-tenant-id': 'pmj.com' };
+    const tenantHeaders = {  };
     Promise.all([
       fetch('http://localhost:3001/api/settings/departments', { headers: tenantHeaders }).then(r => r.json()),
       fetch('http://localhost:3001/api/settings/designations', { headers: tenantHeaders }).then(r => r.json()),

@@ -21,14 +21,14 @@ export const PayrollSettingsPage = () => {
   const fetchEmployees = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/employees', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         const data = await response.json();
         // For each employee, also fetch their salary component
         const empsWithSalary = await Promise.all(data.map(async (emp: any) => {
           const salRes = await fetch(`http://localhost:3001/api/payroll/salary-components/${emp.id}`, {
-            headers: { 'x-tenant-id': 'pmj.com' }
+            headers: {  }
           });
           const salData = await salRes.json();
           return { ...emp, salary: salData };
@@ -63,7 +63,7 @@ export const PayrollSettingsPage = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/payroll/salary-components/${selectedEmp.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {

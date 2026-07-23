@@ -18,8 +18,8 @@ export const TravelExpensesPage = () => {
   const fetchData = async () => {
     try {
       const [expRes, empRes] = await Promise.all([
-        fetch('http://localhost:3001/api/travel', { headers: { 'x-tenant-id': 'pmj.com' } }),
-        fetch('http://localhost:3001/api/employees', { headers: { 'x-tenant-id': 'pmj.com' } })
+        fetch('http://localhost:3001/api/travel', { headers: {  } }),
+        fetch('http://localhost:3001/api/employees', { headers: {  } })
       ]);
       if (expRes.ok) setExpenses(await expRes.json());
       if (empRes.ok) setEmployees(await empRes.json());
@@ -39,7 +39,7 @@ export const TravelExpensesPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/travel', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {

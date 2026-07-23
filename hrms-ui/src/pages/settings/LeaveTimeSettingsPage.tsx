@@ -11,7 +11,7 @@ export const LeaveTimeSettingsPage = () => {
     const fetchLeaves = async () => {
       try {
         const response = await fetch('http://localhost:3001/api/settings/leave-settings', {
-          headers: { 'x-tenant-id': 'pmj.com' }
+          headers: {  }
         });
         if (response.ok) {
           const data = await response.json();

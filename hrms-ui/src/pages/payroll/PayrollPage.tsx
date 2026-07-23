@@ -17,7 +17,7 @@ export const PayrollPage = () => {
     setLoading(true);
     try {
       const response = await fetch(`http://localhost:3001/api/payroll/records?month=${month}&year=${year}`, {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setRecords(await response.json());
@@ -37,7 +37,7 @@ export const PayrollPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/payroll/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ month: parseInt(month), year: parseInt(year) })
       });
       if (response.ok) {
@@ -52,7 +52,7 @@ export const PayrollPage = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/payroll/records/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

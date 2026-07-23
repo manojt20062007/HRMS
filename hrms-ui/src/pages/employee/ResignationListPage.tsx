@@ -19,8 +19,8 @@ export const ResignationListPage = () => {
   const fetchData = async () => {
     try {
       const [resigRes, empRes] = await Promise.all([
-        fetch('http://localhost:3001/api/resignation', { headers: { 'x-tenant-id': 'pmj.com' } }),
-        fetch('http://localhost:3001/api/employees', { headers: { 'x-tenant-id': 'pmj.com' } })
+        fetch('http://localhost:3001/api/resignation', { headers: {  } }),
+        fetch('http://localhost:3001/api/employees', { headers: {  } })
       ]);
       if (resigRes.ok) setResignations(await resigRes.json());
       if (empRes.ok) setEmployees(await empRes.json());
@@ -40,7 +40,7 @@ export const ResignationListPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/resignation', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {

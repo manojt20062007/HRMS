@@ -10,7 +10,7 @@ export const OverallAttendancePage = () => {
     const fetchAttendance = async () => {
       try {
         const response = await fetch('http://localhost:3001/api/attendance', {
-          headers: { 'x-tenant-id': 'pmj.com' }
+          headers: {  }
         });
         if (response.ok) {
           setAttendance(await response.json());

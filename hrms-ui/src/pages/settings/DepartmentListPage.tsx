@@ -22,7 +22,7 @@ export const DepartmentListPage = () => {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:3001/api/settings/departments', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setDepartments(await response.json());
@@ -44,7 +44,7 @@ export const DepartmentListPage = () => {
     try {
       const res = await fetch('http://localhost:3001/api/settings/departments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName.trim(), description: newDesc.trim() }),
       });
       if (res.ok) {
@@ -68,7 +68,7 @@ export const DepartmentListPage = () => {
     try {
       const res = await fetch(`http://localhost:3001/api/settings/departments/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editName.trim(), description: editDesc.trim() }),
       });
       if (res.ok) {
@@ -85,7 +85,7 @@ export const DepartmentListPage = () => {
     try {
       const res = await fetch(`http://localhost:3001/api/settings/departments/${id}`, {
         method: 'DELETE',
-        headers: { 'x-tenant-id': 'pmj.com' },
+        headers: {  },
       });
       if (res.ok) {
         await fetchDepartments();

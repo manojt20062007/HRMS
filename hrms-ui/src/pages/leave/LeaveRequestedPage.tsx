@@ -22,7 +22,7 @@ export const LeaveRequestedPage = () => {
       }
 
       const response = await fetch(url, {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setLeaves(await response.json());
@@ -42,7 +42,7 @@ export const LeaveRequestedPage = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/leave/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

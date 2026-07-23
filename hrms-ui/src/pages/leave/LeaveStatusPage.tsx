@@ -19,7 +19,7 @@ export const LeaveStatusPage = () => {
           }
         }
         const response = await fetch(url, {
-          headers: { 'x-tenant-id': 'pmj.com' }
+          headers: {  }
         });
         if (response.ok) {
           setLeaves(await response.json());

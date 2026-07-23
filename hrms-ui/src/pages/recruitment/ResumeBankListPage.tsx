@@ -19,8 +19,8 @@ export const ResumeBankListPage = () => {
   const fetchData = async () => {
     try {
       const [candRes, reqRes] = await Promise.all([
-        fetch('http://localhost:3001/api/recruitment/candidates?status=RESUME_BANK', { headers: { 'x-tenant-id': 'pmj.com' } }),
-        fetch('http://localhost:3001/api/recruitment/staffing?status=APPROVED', { headers: { 'x-tenant-id': 'pmj.com' } })
+        fetch('http://localhost:3001/api/recruitment/candidates?status=RESUME_BANK', { headers: {  } }),
+        fetch('http://localhost:3001/api/recruitment/staffing?status=APPROVED', { headers: {  } })
       ]);
       if (candRes.ok) setCandidates(await candRes.json());
       if (reqRes.ok) setRequests(await reqRes.json());
@@ -40,7 +40,7 @@ export const ResumeBankListPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/recruitment/candidates', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {
@@ -57,7 +57,7 @@ export const ResumeBankListPage = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/recruitment/candidates/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

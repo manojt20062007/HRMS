@@ -10,7 +10,7 @@ export const ResignationApprovalL2Page = () => {
   const fetchResignations = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/resignation?status=PENDING_L2', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setResignations(await response.json());
@@ -30,7 +30,7 @@ export const ResignationApprovalL2Page = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/resignation/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

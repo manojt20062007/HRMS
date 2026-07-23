@@ -17,7 +17,7 @@ export const StaffingRequestPage = () => {
   });
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/employees', { headers: { 'x-tenant-id': 'pmj.com' } })
+    fetch('http://localhost:3001/api/employees', { headers: {  } })
       .then(res => res.json())
       .then(data => setEmployees(data))
       .catch(console.error);
@@ -28,7 +28,7 @@ export const StaffingRequestPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/recruitment/staffing', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {

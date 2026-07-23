@@ -7,7 +7,7 @@ export const LeaveReport = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/reports/leaves', { headers: { 'x-tenant-id': 'pmj.com' } })
+    fetch('http://localhost:3001/api/reports/leaves', { headers: {  } })
       .then(res => res.json())
       .then(setData)
       .catch(console.error)

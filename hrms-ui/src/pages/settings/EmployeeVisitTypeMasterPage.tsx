@@ -11,7 +11,7 @@ export const EmployeeVisitTypeMasterPage = () => {
     const fetchVisits = async () => {
       try {
         const response = await fetch('http://localhost:3001/api/settings/visits', {
-          headers: { 'x-tenant-id': 'pmj.com' }
+          headers: {  }
         });
         if (response.ok) {
           const data = await response.json();

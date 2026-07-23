@@ -16,7 +16,7 @@ export const AssignRolePage = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const headers = { 'x-tenant-id': 'pmj.com' };
+    const headers = {  };
     try {
       const [empRes, rolesRes] = await Promise.all([
         fetch('http://localhost:3001/api/employees', { headers }),
@@ -47,8 +47,7 @@ export const AssignRolePage = () => {
       const res = await fetch(`http://localhost:3001/api/employees/${selectedEmployeeId}/assign-role`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'x-tenant-id': 'pmj.com'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           roleId: selectedRoleId,

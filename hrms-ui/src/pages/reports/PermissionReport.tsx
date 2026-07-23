@@ -7,7 +7,7 @@ export const PermissionReport = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/reports/permissions', { headers: { 'x-tenant-id': 'pmj.com' } })
+    fetch('http://localhost:3001/api/reports/permissions', { headers: {  } })
       .then(res => res.json())
       .then(setData)
       .catch(console.error)

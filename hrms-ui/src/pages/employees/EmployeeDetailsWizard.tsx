@@ -158,7 +158,6 @@ export const EmployeeDetailsWizard = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-tenant-id': 'pmj.com',
         },
         body: JSON.stringify(payload),
       });

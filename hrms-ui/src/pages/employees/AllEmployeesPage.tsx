@@ -12,7 +12,7 @@ export const AllEmployeesPage = () => {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:3001/api/employees', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         const data = await response.json();
@@ -34,7 +34,7 @@ export const AllEmployeesPage = () => {
     try {
       const res = await fetch(`http://localhost:3001/api/employees/${id}`, {
         method: 'DELETE',
-        headers: { 'x-tenant-id': 'pmj.com' },
+        headers: {  },
       });
       if (res.ok) {
         await fetchEmployees();

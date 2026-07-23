@@ -17,7 +17,7 @@ export const AssetMasterPage = () => {
   const fetchAssets = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/assets', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setAssets(await response.json());
@@ -38,7 +38,7 @@ export const AssetMasterPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/assets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {

@@ -152,7 +152,7 @@ export const EditEmployeeWizard = () => {
     const load = async () => {
       try {
         const res = await fetch(`http://localhost:3001/api/employees/${id}`, {
-          headers: { 'x-tenant-id': 'pmj.com' },
+          headers: {  },
         });
         if (!res.ok) throw new Error('Employee not found');
         const emp = await res.json();
@@ -199,7 +199,6 @@ export const EditEmployeeWizard = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-tenant-id': 'pmj.com',
         },
         body: JSON.stringify(payload),
       });

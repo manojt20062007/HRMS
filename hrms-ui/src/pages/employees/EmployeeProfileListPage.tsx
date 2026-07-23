@@ -13,7 +13,7 @@ export const EmployeeProfileListPage = () => {
       try {
         const response = await fetch('http://localhost:3001/api/employees', {
           headers: {
-            'x-tenant-id': 'pmj.com'
+            
           }
         });
         if (response.ok) {

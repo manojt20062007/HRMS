@@ -9,7 +9,7 @@ export const HrScreenListPage = () => {
   const fetchCandidates = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/recruitment/candidates?status=HR_SCREEN', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setCandidates(await response.json());
@@ -29,7 +29,7 @@ export const HrScreenListPage = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/recruitment/candidates/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

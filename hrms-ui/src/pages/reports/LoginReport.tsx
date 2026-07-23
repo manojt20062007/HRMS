@@ -7,7 +7,7 @@ export const LoginReport = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/reports/attendance', { headers: { 'x-tenant-id': 'pmj.com' } })
+    fetch('http://localhost:3001/api/reports/attendance', { headers: {  } })
       .then(res => res.json())
       .then(setData)
       .catch(console.error)

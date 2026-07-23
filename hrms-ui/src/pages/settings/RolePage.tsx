@@ -222,7 +222,7 @@ export const RolePage = () => {
     setLoading(true);
     try {
       const res = await fetch('http://localhost:3001/api/roles', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (res.ok) setRoles(await res.json());
     } catch (e) {
@@ -241,7 +241,7 @@ export const RolePage = () => {
     try {
       const res = await fetch('http://localhost:3001/api/roles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newRoleName.trim() }),
       });
       const data = await res.json();
@@ -279,7 +279,7 @@ export const RolePage = () => {
 
       const res = await fetch(`http://localhost:3001/api/roles/${editingRoleId}/permissions`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ permissions: permsArray }),
       });
       if (!res.ok) throw new Error('Failed to save permissions');
@@ -298,7 +298,7 @@ export const RolePage = () => {
     try {
       const res = await fetch(`http://localhost:3001/api/roles/${id}`, {
         method: 'DELETE',
-        headers: { 'x-tenant-id': 'pmj.com' },
+        headers: {  },
       });
       if (res.ok) await fetchRoles();
       else alert('Failed to delete role');

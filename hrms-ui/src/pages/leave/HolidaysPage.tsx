@@ -11,7 +11,7 @@ export const HolidaysPage = () => {
   const fetchHolidays = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/attendance/holidays', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setHolidays(await response.json());
@@ -31,7 +31,7 @@ export const HolidaysPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/attendance/holidays', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newHoliday)
       });
       if (response.ok) {

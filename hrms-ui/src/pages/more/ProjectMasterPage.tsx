@@ -18,7 +18,7 @@ export const ProjectMasterPage = () => {
   const fetchProjects = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/projects', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setProjects(await response.json());
@@ -39,7 +39,7 @@ export const ProjectMasterPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       if (response.ok) {

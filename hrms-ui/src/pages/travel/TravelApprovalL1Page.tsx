@@ -9,7 +9,7 @@ export const TravelApprovalL1Page = () => {
   const fetchExpenses = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/travel?status=PENDING_L1', {
-        headers: { 'x-tenant-id': 'pmj.com' }
+        headers: {  }
       });
       if (response.ok) {
         setExpenses(await response.json());
@@ -29,7 +29,7 @@ export const TravelApprovalL1Page = () => {
     try {
       const response = await fetch(`http://localhost:3001/api/travel/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

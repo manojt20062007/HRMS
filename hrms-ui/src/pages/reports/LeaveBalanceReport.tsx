@@ -7,7 +7,7 @@ export const LeaveBalanceReport = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/reports/leave-balance', { headers: { 'x-tenant-id': 'pmj.com' } })
+    fetch('http://localhost:3001/api/reports/leave-balance', { headers: {  } })
       .then(res => res.json())
       .then(setData)
       .catch(console.error)

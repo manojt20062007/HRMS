@@ -34,8 +34,8 @@ export const LeaveRequestPage = () => {
       }
 
       const [leaveRes, empRes] = await Promise.all([
-        fetch(leaveUrl, { headers: { 'x-tenant-id': 'pmj.com' } }),
-        fetch('http://localhost:3001/api/employees', { headers: { 'x-tenant-id': 'pmj.com' } })
+        fetch(leaveUrl, { headers: {  } }),
+        fetch('http://localhost:3001/api/employees', { headers: {  } })
       ]);
 
       if (leaveRes.ok) setLeaves(await leaveRes.json());
@@ -65,7 +65,7 @@ export const LeaveRequestPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/leave', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId, leaveType, startDate, endDate, reason })
       });
       if (response.ok) {

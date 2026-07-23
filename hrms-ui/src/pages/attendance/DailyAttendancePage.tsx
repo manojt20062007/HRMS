@@ -13,8 +13,8 @@ export const DailyAttendancePage = () => {
   const fetchData = async () => {
     try {
       const [empRes, attRes] = await Promise.all([
-        fetch('http://localhost:3001/api/employees', { headers: { 'x-tenant-id': 'pmj.com' } }),
-        fetch(`http://localhost:3001/api/attendance?date=${selectedDate}`, { headers: { 'x-tenant-id': 'pmj.com' } })
+        fetch('http://localhost:3001/api/employees', { headers: {  } }),
+        fetch(`http://localhost:3001/api/attendance?date=${selectedDate}`, { headers: {  } })
       ]);
       
       if (empRes.ok) setEmployees(await empRes.json());
@@ -34,7 +34,7 @@ export const DailyAttendancePage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/attendance/mark', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-tenant-id': 'pmj.com' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId, type, status })
       });
       if (response.ok) {
