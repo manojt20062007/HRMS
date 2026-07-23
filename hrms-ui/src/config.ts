@@ -13,10 +13,12 @@ export const getTenantId = (): string => {
   // Split hostname parts
   const parts = hostname.split('.');
   
-  // If we have a subdomain prefix (e.g. sub.domain.com)
   if (parts.length > 2) {
-    const subdomain = parts[0].toLowerCase();
-    // Return standard domain suffix format to match database schema
+    let subdomain = parts[0].toLowerCase();
+    // If the subdomain contains a hyphen (e.g. pmj-pmjhrms), extract the tenant prefix
+    if (subdomain.includes('-')) {
+      subdomain = subdomain.split('-')[0];
+    }
     return `${subdomain}.com`;
   }
 
