@@ -291,7 +291,7 @@ export const DashboardLayout = () => {
               {/*<div className="h-8 w-8 bg-indigo-600 rounded-md flex items-center justify-center shadow-md">*/}
 
               {/*</div>*/}
-              <span className="hidden sm:inline-block text-indigo-900 dark:text-white">
+              <span className="hidden sm:inline-block whitespace-nowrap text-indigo-900 dark:text-white">
                 {(() => {
                   const hostname = window.location.hostname;
                   if (hostname === 'localhost' || hostname === '127.0.0.1') {
