@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Phone, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { getTenantId } from '../../config';
 
 export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [domain, setDomain] = useState('');
+  const [domain, setDomain] = useState(getTenantId());
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -117,20 +118,22 @@ export const LoginPage = () => {
 
           <form onSubmit={handleLogin} className="space-y-6">
             
-            {/* Domain Input */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Company Domain</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={domain}
-                  onChange={(e) => setDomain(e.target.value)}
-                  className="block w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:bg-slate-800/50 dark:border-slate-700 dark:text-white"
-                  placeholder="e.g. pmj.com"
-                  required
-                />
+            {/* Domain Input (Only visible on localhost for manual dev testing) */}
+            {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Company Domain</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={domain}
+                    onChange={(e) => setDomain(e.target.value)}
+                    className="block w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all dark:bg-slate-800/50 dark:border-slate-700 dark:text-white"
+                    placeholder="e.g. pmj.com"
+                    required
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Mobile Number Input */}
             <div className="space-y-2">
