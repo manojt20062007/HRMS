@@ -225,14 +225,17 @@ const checkPermission = (path: string | undefined): boolean => {
 
   try {
     const user = JSON.parse(userStr);
-    // Super Admins bypass all checks
-    if (user.role?.name === 'SUPER_ADMIN') return true;
+
+    // Super Admins bypass all checks — check multiple possible data shapes
+    const roleName = user.role?.name || user.roleName || '';
+    if (roleName === 'SUPER_ADMIN') return true;
 
     // Standardize path key to match matrix page names (remove starting slash)
     const pageKey = path.startsWith('/') ? path.substring(1) : path;
     
     // Check permission list
-    const hasRead = user.role?.permissions?.some(
+    const permissions = user.role?.permissions || user.permissions || [];
+    const hasRead = permissions.some(
       (p: any) => p.pageName === pageKey && p.canRead
     );
     return !!hasRead;
@@ -281,7 +284,7 @@ export const DashboardLayout = () => {
       
       // Filter direct children
       const filteredChildren = cat.children?.map(child => {
-        // If it has sub-children
+        // If it has sub-children, always show the group header if any sub-child passes
         if (child.subChildren) {
           const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
           if (filteredSubs.length > 0) {
@@ -289,7 +292,9 @@ export const DashboardLayout = () => {
           }
           return null;
         }
-        // Normal child
+        // Normal child with a direct path — check permission
+        // If there is no path defined but also no subChildren, skip it
+        if (!child.path) return null;
         return checkPermission(child.path) ? child : null;
       }).filter(Boolean);
 
