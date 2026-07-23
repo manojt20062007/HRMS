@@ -71,7 +71,12 @@ export const LoginPage = () => {
           <div>
             <div className="flex items-center gap-3 mb-16">
               <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center border border-white/30 shadow-lg">
-                <span className="text-white font-bold text-xl tracking-tighter">PMJ</span>
+                <span className="text-white font-bold text-xl tracking-tighter">
+                  {(() => {
+                    const tid = getTenantId().split('.')[0];
+                    return tid === 'pmj' ? 'PMJ' : tid.toUpperCase();
+                  })()}
+                </span>
               </div>
               <span className="text-white text-2xl font-bold tracking-tight">HRMS</span>
             </div>
@@ -88,13 +93,16 @@ export const LoginPage = () => {
                 </span>
               </h1>
               <p className="text-indigo-100/80 text-lg max-w-md leading-relaxed font-light">
-                The all-in-one enterprise platform to manage your employees, attendance, payroll, and performance seamlessly.
+                Enterprise-grade HR management system tailored for your growing business needs.
               </p>
             </motion.div>
           </div>
 
           <div className="flex items-center gap-4 text-white/60 text-sm font-medium">
-            <span>© 2026 PMJ Enterprise</span>
+            <span>© 2026 {(() => {
+              const tid = getTenantId().split('.')[0];
+              return tid === 'pmj' ? 'PMJ' : tid.toUpperCase();
+            })()} Enterprise</span>
             <span className="w-1 h-1 rounded-full bg-white/30"></span>
             <span>All rights reserved</span>
           </div>

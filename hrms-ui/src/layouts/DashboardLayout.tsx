@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  Menu, X, Bell, User, LayoutDashboard, Users, Calendar,
+  Menu, X, Bell, LayoutDashboard, Users, Calendar,
   Target, Briefcase, BarChart2, DollarSign, Settings, Grid, ChevronDown, LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
