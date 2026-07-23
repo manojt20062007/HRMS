@@ -328,7 +328,7 @@ export const DashboardLayout = () => {
             </div>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center ml-4 gap-1 overflow-x-auto hide-scrollbar">
+            <nav className="hidden lg:flex items-center ml-4 gap-1 overflow-visible">
               {filteredNavCategories.map((cat, i) => {
                 if (!cat.isDropdown) {
                   return (
