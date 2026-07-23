@@ -368,35 +368,31 @@ export const EditEmployeeWizard = () => {
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                <div className="space-y-1 flex-1">
-                  <label className="text-sm font-medium text-slate-700">DOB</label>
-                  <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full pl-3 py-2.5 border border-slate-300 rounded-lg text-slate-700 focus:border-indigo-500 outline-none" />
-                </div>
-                <div className="space-y-1 w-24">
-                  <label className="text-sm font-medium text-slate-700">Age</label>
-                  <input type="text" value={formData.age} readOnly className="w-full pl-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg text-slate-600" />
-                </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">DOB</label>
+                <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full pl-3 py-2.5 border border-slate-300 rounded-lg text-slate-700 focus:border-indigo-500 outline-none" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Age</label>
+                <input type="text" value={formData.age} readOnly className="w-full pl-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg text-slate-600" />
               </div>
 
-              <div className="flex gap-4">
-                <div className="space-y-1 flex-1">
-                  <label className="text-sm font-medium text-slate-700">Blood Group</label>
-                  <div className="relative">
-                    <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
-                      {['A+','A-','B+','B-','O+','O-','AB+','AB-'].map(bg => <option key={bg}>{bg}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Blood Group</label>
+                <div className="relative">
+                  <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
+                    {['A+','A-','B+','B-','O+','O-','AB+','AB-'].map(bg => <option key={bg}>{bg}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
-                <div className="space-y-1 flex-1">
-                  <label className="text-sm font-medium text-slate-700">Religion</label>
-                  <div className="relative">
-                    <select name="religion" value={formData.religion} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
-                      {['Hindu','Muslim','Christian','Sikh','Other'].map(r => <option key={r}>{r}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Religion</label>
+                <div className="relative">
+                  <select name="religion" value={formData.religion} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
+                    {['Hindu','Muslim','Christian','Sikh','Other'].map(r => <option key={r}>{r}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
               </div>
 

@@ -340,46 +340,42 @@ export const EmployeeDetailsWizard = () => {
               </div>
 
               {/* Row 4 */}
-              <div className="flex gap-4">
-                <div className="space-y-1 flex-1">
-                  <label className="text-sm font-medium text-slate-700">DOB<span className="text-red-500">*</span></label>
-                  <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full pl-3 py-2.5 border border-slate-300 rounded-lg text-slate-700 focus:border-blue-500 outline-none" />
-                </div>
-                <div className="space-y-1 w-24">
-                  <label className="text-sm font-medium text-slate-700">Age</label>
-                  <input type="text" name="age" value={formData.age} readOnly className="w-full pl-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg text-slate-600" />
-                </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">DOB<span className="text-red-500">*</span></label>
+                <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="w-full pl-3 py-2.5 border border-slate-300 rounded-lg text-slate-700 focus:border-blue-500 outline-none" />
               </div>
 
-              <div className="flex gap-4">
-                <div className="space-y-1 flex-1">
-                  <label className="text-sm font-medium text-slate-700">Blood Group<span className="text-red-500">*</span></label>
-                  <div className="relative">
-                    <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
-                      {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(bg => <option key={bg}>{bg}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  </div>
-                </div>
-                <div className="space-y-1 flex-1">
-                  <label className="text-sm font-medium text-slate-700">Religion<span className="text-red-500">*</span></label>
-                  <div className="relative">
-                    <select name="religion" value={formData.religion} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
-                      {['Hindu', 'Muslim', 'Christian', 'Sikh', 'Other'].map(r => <option key={r}>{r}</option>)}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Age</label>
+                <input type="text" name="age" value={formData.age} readOnly className="w-full pl-3 py-2.5 border border-slate-200 bg-slate-50 rounded-lg text-slate-600" />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Blood Group<span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
+                    {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(bg => <option key={bg}>{bg}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Religion<span className="text-red-500">*</span></label>
+                <div className="relative">
+                  <select name="religion" value={formData.religion} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
+                    {['Hindu', 'Muslim', 'Christian', 'Sikh', 'Other'].map(r => <option key={r}>{r}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Row 5 */}
+              <div className="space-y-1">
                 <label className="text-sm font-medium text-slate-700">Marital Status<span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
-                    <option>Unmarried</option>
-                    <option>Married</option>
-                    <option>Divorced</option>
-                    <option>Widowed</option>
+                    {['Unmarried', 'Married', 'Divorced', 'Widowed'].map(ms => <option key={ms}>{ms}</option>)}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
@@ -389,8 +385,9 @@ export const EmployeeDetailsWizard = () => {
                 <label className="text-sm font-medium text-slate-700">Physically Challenged<span className="text-red-500">*</span></label>
                 <div className="relative">
                   <select name="physicallyChallenged" value={formData.physicallyChallenged} onChange={handleChange} className="w-full pl-3 pr-10 py-2.5 border border-slate-300 rounded-lg text-slate-700 appearance-none bg-white outline-none">
-                    <option>NO</option>
-                    <option>YES</option>
+                    <option value="">Select option</option>
+                    <option value="YES">YES</option>
+                    <option value="NO">NO</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 </div>
