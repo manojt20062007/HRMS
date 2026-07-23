@@ -275,35 +275,47 @@ export const DashboardLayout = () => {
     setOpenSubDropdown(null);
   };
 
-  // Filter categories and children based on permissions
-  const filteredNavCategories = navCategories
-    .map(cat => {
-      if (!cat.isDropdown) {
-        return checkPermission(cat.path) ? cat : null;
-      }
-      
-      // Filter direct children
-      const filteredChildren = cat.children?.map(child => {
-        // If it has sub-children, always show the group header if any sub-child passes
-        if (child.subChildren) {
-          const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
-          if (filteredSubs.length > 0) {
-            return { ...child, subChildren: filteredSubs };
+  // Check if the logged-in user is a super admin — if so, show all nav items with no filtering
+  const isSuperAdmin = (() => {
+    try {
+      const userStr = localStorage.getItem('hrms_user');
+      if (!userStr) return false;
+      const user = JSON.parse(userStr);
+      const roleName = user?.role?.name || user?.roleName || '';
+      return roleName === 'SUPER_ADMIN';
+    } catch { return false; }
+  })();
+
+  // Filter categories and children based on permissions (SUPER_ADMIN sees everything)
+  const filteredNavCategories = isSuperAdmin
+    ? navCategories
+    : navCategories
+        .map(cat => {
+          if (!cat.isDropdown) {
+            return checkPermission(cat.path) ? cat : null;
+          }
+          
+          // Filter direct children
+          const filteredChildren = cat.children?.map(child => {
+            // If it has sub-children, always show the group header if any sub-child passes
+            if (child.subChildren) {
+              const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
+              if (filteredSubs.length > 0) {
+                return { ...child, subChildren: filteredSubs };
+              }
+              return null;
+            }
+            // Normal child with a direct path — check permission
+            if (!child.path) return null;
+            return checkPermission(child.path) ? child : null;
+          }).filter(Boolean);
+
+          if (filteredChildren && filteredChildren.length > 0) {
+            return { ...cat, children: filteredChildren };
           }
           return null;
-        }
-        // Normal child with a direct path — check permission
-        // If there is no path defined but also no subChildren, skip it
-        if (!child.path) return null;
-        return checkPermission(child.path) ? child : null;
-      }).filter(Boolean);
-
-      if (filteredChildren && filteredChildren.length > 0) {
-        return { ...cat, children: filteredChildren };
-      }
-      return null;
-    })
-    .filter(Boolean) as typeof navCategories;
+        })
+        .filter(Boolean) as typeof navCategories;
 
   return (
     <div className="min-h-screen bg-[#F4F7FE] dark:bg-background flex flex-col font-sans">
