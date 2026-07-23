@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, Bell, ClipboardList, Clock, Briefcase, BellOff, ArrowLeft } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-const pieData = [
-  { name: 'KVM', value: 1, color: '#3B82F6' },
-  { name: 'Other', value: 3, color: '#10B981' }
-];
-
 export const DashboardPage = () => {
   const [employees, setEmployees] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -24,8 +20,46 @@ export const DashboardPage = () => {
         console.error('Failed to fetch employees', error);
       }
     };
+
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/projects', {
+          headers: {  }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch projects', error);
+      }
+    };
+
     fetchEmployees();
+    fetchProjects();
   }, []);
+
+  // Compute project statuses for pie chart
+  const projectStats = {
+    ACTIVE: 0,
+    COMPLETED: 0,
+    ON_HOLD: 0
+  };
+  projects.forEach(p => {
+    if (projectStats[p.status as keyof typeof projectStats] !== undefined) {
+      projectStats[p.status as keyof typeof projectStats]++;
+    }
+  });
+
+  const dynamicPieData = [
+    { name: 'Active', value: projectStats.ACTIVE, color: '#3B82F6' },
+    { name: 'Completed', value: projectStats.COMPLETED, color: '#10B981' },
+    { name: 'On Hold', value: projectStats.ON_HOLD, color: '#F59E0B' }
+  ].filter(d => d.value > 0);
+
+  if (dynamicPieData.length === 0) {
+    dynamicPieData.push({ name: 'No Projects', value: 1, color: '#E2E8F0' });
+  }
 
   const kpis = [
     { title: 'TOTAL STAFF', subtitle: 'Registered employees', value: employees.length.toString(), change: '+10%', icon: Users },
@@ -84,30 +118,24 @@ export const DashboardPage = () => {
 
       {/* Widgets Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
-        {/* Projects by Client */}
+        {/* Project Status */}
         <div className="bg-white dark:bg-card rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-border h-[400px] flex flex-col">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h3 className="text-[13px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide">PROJECTS BY CLIENT</h3>
+              <h3 className="text-[13px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide">PROJECT STATUS</h3>
               <p className="text-[12px] text-slate-500 mt-0.5">Overview of project distributions</p>
             </div>
             <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-wider">
               ANALYTICS
             </span>
           </div>
-          
-          <div className="mb-4">
-            <select className="w-48 text-sm border border-border rounded-md px-3 py-1.5 bg-transparent outline-none">
-              <option>-- Select Client --</option>
-            </select>
-          </div>
 
-          <div className="flex-1 min-h-0 relative">
+          <div className="flex-1 min-h-0 relative flex items-center justify-center">
              <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={pieData}
-                  cx="50%"
+                  data={dynamicPieData}
+                  cx="40%"
                   cy="50%"
                   innerRadius={60}
                   outerRadius={90}
@@ -115,17 +143,23 @@ export const DashboardPage = () => {
                   dataKey="value"
                   stroke="none"
                 >
-                  {pieData.map((entry, index) => (
+                  {dynamicPieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-            {/* Custom Legend to match image */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
-               <span className="font-bold text-xs">KVM: 1</span>
-               <div className="w-8 h-px bg-slate-300"></div>
+            {/* Custom Legend */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-3">
+               {dynamicPieData.map((item, idx) => (
+                 <div key={idx} className="flex items-center gap-2">
+                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                   <span className="font-medium text-xs text-slate-700 dark:text-slate-300">
+                     {item.name}: {item.value}
+                   </span>
+                 </div>
+               ))}
             </div>
           </div>
         </div>
