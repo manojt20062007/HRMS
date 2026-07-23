@@ -370,7 +370,6 @@ export const DashboardLayout = () => {
                         )
                       }
                     >
-                      <cat.icon className="h-4 w-4 flex-shrink-0" />
                       <span>{cat.name}</span>
                     </NavLink>
                   );
@@ -386,7 +385,6 @@ export const DashboardLayout = () => {
                         isOpen ? "bg-[#C0A3FF] text-slate-900" : "text-slate-700 hover:bg-[#C0A3FF] hover:text-slate-900"
                       )}
                     >
-                      <cat.icon className="h-4 w-4 flex-shrink-0" />
                       <span>{cat.name}</span>
                       <ChevronDown className={cn("h-3 w-3 opacity-50 flex-shrink-0 transition-transform", isOpen && "rotate-180")} />
                     </button>
