@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// PUBLIC SCHEMA (System Level)
+// ==========================================
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  schema    String   @unique
+  domain    String?  @unique
+  status    String   @default("ACTIVE") // ACTIVE, SUSPENDED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  users        User[]
+  departments  Department[]
+  designations Designation[]
+  employees    Employee[]
+}
+
+// ==========================================
+// TENANT SCHEMA (Tenant Level)
+// ==========================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      String   @default("EMPLOYEE") // SUPER_ADMIN, ADMIN, HR, EMPLOYEE
+  status    String   @default("ACTIVE")
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  employee  Employee?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// More HRMS models will be added in Phase 2
+
+model Department {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  tenantId    String
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+  
+  employees   Employee[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Designation {
+  id          String     @id @default(uuid())
+  title       String
+  level       String?
+  tenantId    String
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+
+  employees   Employee[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Employee {
+  id            String       @id @default(uuid())
+  employeeId    String       // e.g., EMP-001
+  firstName     String
+  lastName      String
+  email         String       @unique
+  phone         String?
+  dateOfJoin    DateTime?
+  status        String       @default("ACTIVE") // ACTIVE, ON_LEAVE, TERMINATED
+  
+  userId        String?      @unique
+  user          User?        @relation(fields: [userId], references: [id])
+
+  departmentId  String?
+  department    Department?  @relation(fields: [departmentId], references: [id])
+
+  designationId String?
+  designation   Designation? @relation(fields: [designationId], references: [id])
+
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+

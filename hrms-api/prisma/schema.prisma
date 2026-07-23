@@ -1,0 +1,457 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// SYSTEM (Public Schema)
+// ==========================================
+model Tenant {
+  id         String   @id @default(uuid())
+  name       String   
+  domain     String   @unique 
+  schemaName String   @unique 
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ==========================================
+// TENANT SPECIFIC (Isolated Schemas)
+// ==========================================
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  isDefault   Boolean          @default(false)
+  permissions RolePermission[]
+  users       User[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model RolePermission {
+  id        String   @id @default(uuid())
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  pageName  String   
+  canRead   Boolean  @default(false)
+  canWrite  Boolean  @default(false)
+  
+  @@unique([roleId, pageName])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  employee  Employee?
+}
+
+model Employee {
+  id                   String   @id @default(uuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Step 1: Basic & Personal
+  firstName            String
+  lastName             String
+  department           String?
+  designation          String?
+  personalEmail        String?
+  mobileNumber         String?
+  aadhaarName          String?
+  aadhaarNo            String?
+  aadhaarFile          String?
+  panNo                String?
+  panFile              String?
+  nationality          String?
+  gender               String?
+  dob                  DateTime?
+  bloodGroup           String?
+  religion             String?
+  maritalStatus        String?
+  physicallyChallenged Boolean @default(false)
+  photoUrl             String?
+  
+  // Step 6: Experience Metadata
+  experienceType       String? // Experienced or Fresher
+  totalExperienceYears Float?
+  referenceName        String?
+  referenceMobile      String?
+
+  // Step 8: Professional Metadata
+  employeeIdString     String? @unique // e.g. KY_001
+  professionalEmail    String?
+  employmentStatus     String? // Probation, Permanent, etc.
+  joiningDate          DateTime?
+  salary               Float?
+  pfNo                 String?
+  esiNo                String?
+  
+  reportingToId        String?
+  reportingTo          Employee? @relation("ReportingTo", fields: [reportingToId], references: [id])
+  subordinates         Employee[] @relation("ReportingTo")
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Nested Relations (Steps 2-7)
+  families             EmployeeFamily[]
+  bank                 EmployeeBank?
+  address              EmployeeAddress?
+  qualifications       EmployeeQualification[]
+  experiences          EmployeeExperience[]
+  certificates         EmployeeCertificate[]
+  
+  // Phase 3 Relations
+  leaveRequests        LeaveRequest[] @relation("EmployeeLeaves")
+  approvedLeaves       LeaveRequest[] @relation("ApprovedLeaves")
+  attendanceRecords    AttendanceRecord[]
+  
+  // Phase 4 Relations
+  travelExpenses       TravelExpense[]
+
+  // Phase 5 Relations
+  resignationRequests  ResignationRequest[]
+
+  // Phase 6 Relations
+  staffingRequests     StaffingRequest[]
+  interviewsConducted  Interview[]
+
+  // Phase 7 Relations
+  salaryComponent      SalaryComponent?
+  payrollRecords       PayrollRecord[]
+
+  // Phase 8 Relations
+  projects             EmployeeProject[]
+  assets               Asset[]
+}
+
+model EmployeeFamily {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  name       String
+  relation   String
+  dob        DateTime?
+  bloodGroup String?
+  occupation String?
+}
+
+model EmployeeBank {
+  id            String   @id @default(uuid())
+  employeeId    String   @unique
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  bankName      String
+  accountName   String
+  accountNumber String
+  ifscCode      String
+  branch        String?
+}
+
+model EmployeeAddress {
+  id         String   @id @default(uuid())
+  employeeId String   @unique
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  street     String
+  city       String
+  state      String
+  zipCode    String
+  country    String
+}
+
+model EmployeeQualification {
+  id            String   @id @default(uuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  degree        String
+  institution   String
+  yearOfPassing String
+  grade         String?
+  documentUrl   String?
+}
+
+model EmployeeExperience {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  jobTitle    String
+  companyName String
+  startDate   DateTime
+  endDate     DateTime?
+  documentUrl String?
+}
+
+model EmployeeCertificate {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  name        String
+  documentUrl String?
+}
+
+// ==========================================
+// MASTER SETTINGS (Tenant Specific)
+// ==========================================
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Designation {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Client {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  contactPerson String?
+  email         String?
+  phone         String?
+  address       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model DomainMaster {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EmployeeVisitType {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LeaveTimeSetting {
+  id             String   @id @default(uuid())
+  leaveName      String   @unique
+  totalLeave     Int
+  isCarryForward Boolean  @default(false)
+  type           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model PayrollSetting {
+  id        String   @id @default(uuid())
+  category  String   @unique
+  value     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// LEAVE & ATTENDANCE (Tenant Specific)
+// ==========================================
+model Holiday {
+  id        String   @id @default(uuid())
+  date      DateTime
+  name      String
+  type      String   // e.g., Public Holiday, Optional Holiday
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id           String   @id @default(uuid())
+  employeeId   String
+  employee     Employee @relation("EmployeeLeaves", fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType    String
+  startDate    DateTime
+  endDate      DateTime
+  reason       String
+  status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedById String?
+  approvedBy   Employee? @relation("ApprovedLeaves", fields: [approvedById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AttendanceRecord {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date       DateTime
+  checkIn    DateTime?
+  checkOut   DateTime?
+  status     String   // PRESENT, ABSENT, HALF_DAY
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@unique([employeeId, date])
+}
+
+// ==========================================
+// TRAVEL & EXPENSES (Tenant Specific)
+// ==========================================
+model TravelExpense {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime
+  amount      Float
+  description String
+  status      String   @default("PENDING_L1") // PENDING_L1, PENDING_L2, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// RESIGNATION & OFFBOARDING (Tenant Specific)
+// ==========================================
+model ResignationRequest {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  resignationDate DateTime
+  lastWorkingDay  DateTime
+  reason          String
+  status          String   @default("PENDING_L1") // PENDING_L1, PENDING_L2, APPROVED, REJECTED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ==========================================
+// RECRUITMENT & STAFFING (Tenant Specific)
+// ==========================================
+model StaffingRequest {
+  id              String   @id @default(uuid())
+  department      String
+  designation     String
+  positions       Int
+  experience      String
+  budget          Float
+  justification   String
+  status          String   @default("PENDING_RM") // PENDING_RM, PENDING_HR, PENDING_CTO, PENDING_CEO, APPROVED, EXECUTED, REJECTED
+  requestedById   String
+  requestedBy     Employee @relation(fields: [requestedById], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  candidates      Candidate[]
+}
+
+model Candidate {
+  id                String   @id @default(uuid())
+  staffingRequestId String
+  staffingRequest   StaffingRequest @relation(fields: [staffingRequestId], references: [id], onDelete: Cascade)
+  firstName         String
+  lastName          String
+  email             String
+  phone             String
+  resumeUrl         String?
+  status            String   @default("RESUME_BANK") // RESUME_BANK, HR_SCREEN, INTERVIEW_PANEL, CAF, HIRED, REJECTED
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  interviews        Interview[]
+}
+
+model Interview {
+  id              String   @id @default(uuid())
+  candidateId     String
+  candidate       Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  interviewerId   String
+  interviewer     Employee @relation(fields: [interviewerId], references: [id])
+  scheduledAt     DateTime
+  feedback        String?
+  result          String?  // PASS, FAIL, PENDING
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ==========================================
+// PAYROLL (Tenant Specific)
+// ==========================================
+model SalaryComponent {
+  id              String   @id @default(uuid())
+  employeeId      String   @unique
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  basicPay        Float    @default(0)
+  hra             Float    @default(0)
+  da              Float    @default(0)
+  pf              Float    @default(0)
+  taxes           Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PayrollRecord {
+  id              String   @id @default(uuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  month           Int
+  year            Int
+  basicPay        Float
+  hra             Float
+  da              Float
+  pf              Float
+  taxes           Float
+  netPay          Float
+  status          String   @default("DRAFT") // DRAFT, PROCESSED, PAID
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([employeeId, month, year])
+}
+
+// ==========================================
+// ASSETS & PROJECTS (Tenant Specific)
+// ==========================================
+model Project {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  startDate       DateTime?
+  endDate         DateTime?
+  status          String   @default("ACTIVE") // ACTIVE, COMPLETED, ON_HOLD
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  employees       EmployeeProject[]
+}
+
+model EmployeeProject {
+  id              String   @id @default(uuid())
+  employeeId      String
+  projectId       String
+  role            String?
+  assignedAt      DateTime @default(now())
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, projectId])
+}
+
+model Asset {
+  id              String   @id @default(uuid())
+  assetName       String
+  assetType       String   // LAPTOP, MOBILE, KEY, MONITOR, etc.
+  serialNumber    String?
+  status          String   @default("AVAILABLE") // AVAILABLE, ASSIGNED, MAINTENANCE, RETIRED
+  assignedToId    String?
+  assignedTo      Employee? @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedDate    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
