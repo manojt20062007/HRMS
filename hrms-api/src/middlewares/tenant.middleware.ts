@@ -26,7 +26,7 @@ export const tenantMiddleware = async (req: Request | any, res: Response, next: 
 
     next();
   } catch (error) {
-    console.error('Tenant middleware error:', error);
-    res.status(500).json({ error: 'Internal server error identifying tenant' });
+    console.error('Tenant middleware error details:', error);
+    res.status(500).json({ error: `Internal server error identifying tenant: ${error instanceof Error ? error.message : String(error)}` });
   }
 };
