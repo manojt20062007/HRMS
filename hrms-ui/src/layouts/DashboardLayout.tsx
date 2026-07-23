@@ -475,7 +475,7 @@ export const DashboardLayout = () => {
                           {cat.children?.map((child, j) => (
                             <NavLink
                               key={j}
-                              to={child.path}
+                              to={child.path || '#'}
                               onClick={() => setIsMobileMenuOpen(false)}
                               className={({ isActive }) => cn(
                                 "py-2 px-3 text-[14px] rounded-md transition-colors",

@@ -7,7 +7,14 @@ import { API_BASE_URL, getTenantId } from './config.ts'
 // Intercept window.fetch globally to inject production API base URL and dynamic x-tenant-id from subdomain
 const originalFetch = window.fetch;
 window.fetch = async (input, init) => {
-  let url = typeof input === 'string' ? input : input.url;
+  let url = '';
+  if (typeof input === 'string') {
+    url = input;
+  } else if (input instanceof URL) {
+    url = input.toString();
+  } else {
+    url = input.url;
+  }
   
   // 1. Rewrite localhost backend URLs to the production API_BASE_URL
   if (url.startsWith('http://localhost:3001')) {
