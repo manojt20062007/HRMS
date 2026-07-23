@@ -291,7 +291,24 @@ export const DashboardLayout = () => {
               {/*<div className="h-8 w-8 bg-indigo-600 rounded-md flex items-center justify-center shadow-md">*/}
 
               {/*</div>*/}
-              <span className="hidden sm:inline-block text-indigo-900 dark:text-white">PMJ HRMS</span>
+              <span className="hidden sm:inline-block text-indigo-900 dark:text-white">
+                {(() => {
+                  const hostname = window.location.hostname;
+                  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                    // Default to PMJ on localhost
+                    return 'PMJ HRMS';
+                  }
+                  const parts = hostname.split('.');
+                  if (parts.length > 2) {
+                    let subdomain = parts[0].toLowerCase();
+                    if (subdomain.includes('-')) {
+                      subdomain = subdomain.split('-')[0];
+                    }
+                    return `${subdomain.toUpperCase()} HRMS`;
+                  }
+                  return 'PMJ HRMS';
+                })()}
+              </span>
             </div>
 
             {/* Desktop Navigation Links */}
