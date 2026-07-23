@@ -279,15 +279,15 @@ export const DashboardLayout = () => {
       {/* Top Navigation */}
       <header className="sticky top-0 z-40 w-full bg-white dark:bg-card border-b border-border shadow-sm">
         <div className="w-full flex h-14 items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <button
               onClick={toggleMobileMenu}
-              className="lg:hidden p-2 text-muted-foreground hover:text-foreground"
+              className="lg:hidden p-2 text-muted-foreground hover:text-foreground shrink-0"
             >
               <Menu className="h-6 w-6" />
             </button>
 
-            <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary cursor-pointer" onClick={() => navigate('/')}>
+            <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary cursor-pointer shrink-0" onClick={() => navigate('/')}>
               {/*<div className="h-8 w-8 bg-indigo-600 rounded-md flex items-center justify-center shadow-md">*/}
 
               {/*</div>*/}
@@ -312,7 +312,7 @@ export const DashboardLayout = () => {
             </div>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center ml-4 gap-1">
+            <nav className="hidden lg:flex items-center ml-4 gap-1 overflow-x-auto hide-scrollbar">
               {filteredNavCategories.map((cat, i) => {
                 if (!cat.isDropdown) {
                   return (
@@ -391,7 +391,7 @@ export const DashboardLayout = () => {
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-muted transition-colors relative">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500"></span>
