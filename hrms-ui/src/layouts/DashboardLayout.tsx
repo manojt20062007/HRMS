@@ -217,7 +217,6 @@ const navCategories = [
 // Helper to check page permission
 const checkPermission = (path: string | undefined): boolean => {
   if (!path) return false;
-  if (path === '/') return true; // Everyone can see dashboard index
 
   // Get user details
   const userStr = localStorage.getItem('hrms_user');
@@ -231,7 +230,7 @@ const checkPermission = (path: string | undefined): boolean => {
     if (roleName === 'SUPER_ADMIN') return true;
 
     // Standardize path key to match matrix page names (remove starting slash)
-    const pageKey = path.startsWith('/') ? path.substring(1) : path;
+    const pageKey = path === '/' ? 'dashboard' : (path.startsWith('/') ? path.substring(1) : path);
     
     // Check permission list
     const permissions = user.role?.permissions || user.permissions || [];
