@@ -5,42 +5,48 @@ import { useNavigate } from 'react-router-dom';
 // All application pages grouped by module
 const ALL_PAGES = [
   {
-    module: 'Dashboard',
+    module: 'Dashboard & Payroll',
     pages: [
       { key: 'dashboard', label: 'Dashboard', path: '/' },
+      { key: 'payroll', label: 'Payroll', path: 'payroll' },
+      { key: 'calendar', label: 'Calendar', path: 'calendar' },
     ]
   },
   {
-    module: 'Employees',
+    module: 'User Management',
     pages: [
       { key: 'employees/all', label: 'All Employees', path: 'employees/all' },
-      { key: 'employees/new', label: 'Add Employee', path: 'employees/new' },
       { key: 'employees/assign-role', label: 'Assign Role', path: 'employees/assign-role' },
       { key: 'employees/assign-project', label: 'Assign Project', path: 'employees/assign-project' },
+      { key: 'employee/resignation-list', label: 'Resignation List', path: 'employee/resignation-list' },
     ]
   },
   {
-    module: 'Leave & Attendance',
+    module: 'Attendance & Leave',
     pages: [
-      { key: 'leave/holidays', label: 'Holidays', path: 'leave/holidays' },
       { key: 'leave/status', label: 'Leave Status', path: 'leave/status' },
       { key: 'leave/requested', label: 'Leave Requested', path: 'leave/requested' },
       { key: 'leave/request', label: 'Apply Leave', path: 'leave/request' },
+      { key: 'leave/holidays', label: 'Holidays', path: 'leave/holidays' },
       { key: 'attendance/daily', label: 'Daily Attendance', path: 'attendance/daily' },
       { key: 'attendance/overall', label: 'Overall Attendance', path: 'attendance/overall' },
       { key: 'attendance/details', label: 'Attendance Details', path: 'attendance/details' },
+      { key: 'attendance/calendar', label: 'Attendance Calendar', path: 'attendance/calendar' },
     ]
   },
   {
-    module: 'Travel',
+    module: 'Worklog & Travel',
     pages: [
+      { key: 'worklog/entry', label: 'Work Log', path: 'worklog/entry' },
+      { key: 'worklog/l1', label: 'Worklog Approval L1', path: 'worklog/l1' },
+      { key: 'worklog/l2', label: 'Worklog Approval L2', path: 'worklog/l2' },
       { key: 'travel/expenses', label: 'Travel Expenses', path: 'travel/expenses' },
       { key: 'travel/l1', label: 'Travel Approval L1', path: 'travel/l1' },
       { key: 'travel/l2', label: 'Travel Approval L2', path: 'travel/l2' },
     ]
   },
   {
-    module: 'Performance',
+    module: 'Performance Management',
     pages: [
       { key: 'performance/objective-user', label: 'Objectives (User)', path: 'performance/objective-user' },
       { key: 'performance/objective-manager', label: 'Objectives (Manager)', path: 'performance/objective-manager' },
@@ -52,20 +58,30 @@ const ALL_PAGES = [
     ]
   },
   {
+    module: 'Resignation',
+    pages: [
+      { key: 'resignation/apply', label: 'Apply Resignation', path: 'resignation/apply' },
+      { key: 'resignation/l1', label: 'Resignation L1', path: 'resignation/l1' },
+      { key: 'resignation/l2', label: 'Resignation L2', path: 'resignation/l2' },
+      { key: 'resignation/l3', label: 'Resignation L3', path: 'resignation/l3' },
+      { key: 'resignation/approval-l1', label: 'Resignation Approval L1', path: 'resignation/approval-l1' },
+      { key: 'resignation/approval-l2', label: 'Resignation Approval L2', path: 'resignation/approval-l2' },
+    ]
+  },
+  {
     module: 'Recruitment',
     pages: [
       { key: 'recruitment/staffing-request', label: 'Staffing Request', path: 'recruitment/staffing-request' },
       { key: 'recruitment/staffing-list', label: 'Staffing List', path: 'recruitment/staffing-list' },
+      { key: 'recruitment/staffing-list-rm', label: 'Staffing List RM', path: 'recruitment/staffing-list-rm' },
+      { key: 'recruitment/staffing-list-hr', label: 'Staffing List HR', path: 'recruitment/staffing-list-hr' },
+      { key: 'recruitment/staffing-list-cto', label: 'Staffing List CTO', path: 'recruitment/staffing-list-cto' },
+      { key: 'recruitment/staffing-list-ceo', label: 'Staffing List CEO', path: 'recruitment/staffing-list-ceo' },
+      { key: 'recruitment/staffing-list-executor', label: 'Staffing List Executor', path: 'recruitment/staffing-list-executor' },
       { key: 'recruitment/hrscreen', label: 'HR Screen', path: 'recruitment/hrscreen' },
       { key: 'recruitment/resume-bank', label: 'Resume Bank', path: 'recruitment/resume-bank' },
       { key: 'recruitment/interview-panel', label: 'Interview Panel', path: 'recruitment/interview-panel' },
       { key: 'recruitment/caf', label: 'CAF', path: 'recruitment/caf' },
-    ]
-  },
-  {
-    module: 'Payroll',
-    pages: [
-      { key: 'payroll', label: 'Payroll', path: 'payroll' },
     ]
   },
   {
@@ -84,9 +100,29 @@ const ALL_PAGES = [
     pages: [
       { key: 'settings/role', label: 'Roles', path: 'settings/role' },
       { key: 'settings/leave', label: 'Leave Settings', path: 'settings/leave' },
-      { key: 'settings/client/list', label: 'Client Master', path: 'settings/client/list' },
+      { key: 'settings/client/list', label: 'Client List', path: 'settings/client/list' },
       { key: 'settings/employee/designation', label: 'Designation Settings', path: 'settings/employee/designation' },
       { key: 'settings/employee/department', label: 'Department Settings', path: 'settings/employee/department' },
+      { key: 'settings/employee/visit', label: 'Employee Visit Master', path: 'settings/employee/visit' },
+      { key: 'settings/payroll-settings', label: 'Payroll Settings', path: 'settings/payroll-settings' },
+      { key: 'settings/policy', label: 'Policy Settings', path: 'settings/policy' },
+    ]
+  },
+  {
+    module: 'More Menu',
+    pages: [
+      { key: 'more/md-speak', label: 'MD Speak', path: 'more/md-speak' },
+      { key: 'more/hr-announcement', label: 'HR Announcement', path: 'more/hr-announcement' },
+      { key: 'settings/source/domain', label: 'Domain Master', path: 'settings/source/domain' },
+      { key: 'settings/source/panel', label: 'Source of Panel Master', path: 'settings/source/panel' },
+      { key: 'more/leads/list', label: 'Lead List', path: 'more/leads/list' },
+      { key: 'more/leads/uk-list', label: 'UK Leads List', path: 'more/leads/uk-list' },
+      { key: 'more/assets/master', label: 'Asset Master', path: 'more/assets/master' },
+      { key: 'more/assets/list', label: 'Employee Asset', path: 'more/assets/list' },
+      { key: 'more/projects/master', label: 'Project Master', path: 'more/projects/master' },
+      { key: 'more/projects/list', label: 'Projects List', path: 'more/projects/list' },
+      { key: 'more/projects/process', label: 'Process Master', path: 'more/projects/process' },
+      { key: 'more/projects/module', label: 'Module Master', path: 'more/projects/module' },
     ]
   },
 ];
