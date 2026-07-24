@@ -23,7 +23,7 @@ export const AssignProjectPage = () => {
         fetch('http://localhost:3001/api/employees'),
         fetch('http://localhost:3001/api/projects')
       ]);
-      
+
       if (empRes.ok) setEmployees(await empRes.json());
       if (projRes.ok) setProjects(await projRes.json());
     } catch (error) {
@@ -99,20 +99,20 @@ export const AssignProjectPage = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto pb-10">
-      <PageHeader 
-        title="Assign Project" 
-        breadcrumbs={['User Management', 'Assign Project']} 
+      <PageHeader
+        title="Assign Project"
+        breadcrumbs={['User Management', 'Assign Project']}
       />
 
       <div className="bg-white dark:bg-card border border-border shadow-sm rounded-xl p-6 mb-6">
         <form onSubmit={handleAssign} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Employee Name <span className="text-red-500">*</span></label>
-            <select 
+            <select
               required
               className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500"
               value={formData.employeeId}
-              onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
             >
               <option value="">-- Select Employee --</option>
               {employees.map(emp => (
@@ -122,11 +122,11 @@ export const AssignProjectPage = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Project Name <span className="text-red-500">*</span></label>
-            <select 
+            <select
               required
               className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500"
               value={formData.projectId}
-              onChange={(e) => setFormData({...formData, projectId: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
             >
               <option value="">-- Select Project --</option>
               {projects.map(proj => (
@@ -136,53 +136,36 @@ export const AssignProjectPage = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Percentage / Role</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="e.g. 100% or Dev"
-              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500" 
+              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500"
               value={formData.role}
-              onChange={(e) => setFormData({...formData, role: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
-            <input 
-              type="date" 
-              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500 text-slate-500" 
-              value={formData.startDate}
-              onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">End Date</label>
-            <input 
-              type="date" 
-              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500 text-slate-500" 
-              value={formData.endDate}
-              onChange={(e) => setFormData({...formData, endDate: e.target.value})}
-            />
-          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Remark</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Enter Remark"
-              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500" 
+              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500"
               value={formData.remark}
-              onChange={(e) => setFormData({...formData, remark: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
             />
           </div>
         </form>
-        
+
         <div className="flex justify-center gap-4 mt-8">
-          <button 
+          <button
             type="button"
             onClick={() => setFormData({ employeeId: '', projectId: '', role: '', startDate: '', endDate: '', remark: '' })}
             className="flex items-center gap-2 px-6 py-2 bg-white dark:bg-card border border-border rounded-full text-sm font-medium text-indigo-600 hover:bg-slate-50 transition-colors shadow-sm"
           >
             <RotateCcw className="h-4 w-4" /> Clear
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => handleAssign()}
             className="flex items-center gap-2 px-6 py-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-full text-sm font-medium text-indigo-600 hover:bg-indigo-100 transition-colors shadow-sm"
@@ -197,7 +180,7 @@ export const AssignProjectPage = () => {
           <button className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 border border-indigo-100 dark:border-indigo-800 rounded-full text-sm font-medium hover:bg-indigo-100 transition-colors">
             <FileSpreadsheet className="h-4 w-4" /> Export to Excel
           </button>
-          
+
           <div className="flex items-center gap-3 text-sm">
             <span className="font-semibold text-slate-700 dark:text-slate-300">Date Range:</span>
             <span className="text-slate-500">From</span>
@@ -230,16 +213,15 @@ export const AssignProjectPage = () => {
                   <td className="px-6 py-4">{assignment.projectStart}</td>
                   <td className="px-6 py-4">{assignment.projectEnd}</td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      assignment.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
-                      assignment.status === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
-                      'bg-orange-100 text-orange-700'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${assignment.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                        assignment.status === 'COMPLETED' ? 'bg-blue-100 text-blue-700' :
+                          'bg-orange-100 text-orange-700'
+                      }`}>
                       {assignment.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button 
+                    <button
                       onClick={() => handleDelete(assignment.projectId, assignment.employeeId)}
                       className="text-red-600 hover:bg-red-50 p-1.5 rounded transition-colors"
                     >
