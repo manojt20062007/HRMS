@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '../../components/PageHeader';
 import { Calendar, Settings, Check, X } from 'lucide-react';
+import { API_BASE_URL, getTenantHeader } from '../../config';
 
 export const LeaveRequestedPage = () => {
   const [leaves, setLeaves] = useState<any[]>([]);
@@ -8,21 +9,24 @@ export const LeaveRequestedPage = () => {
 
   const fetchLeaves = async () => {
     try {
-      let url = 'http://localhost:3001/api/leave';
+      let url = `${API_BASE_URL}/api/leave`;
       
       const userStr = localStorage.getItem('hrms_user');
       if (userStr) {
         const user = JSON.parse(userStr);
-        const roleName = user.role?.name;
+        const isHR = user.roles?.some((r: any) => r?.name === 'HR') || user.role?.name === 'HR';
+        const isAdmin = user.roles?.some((r: any) => r?.name === 'ADMIN') || user.role?.name === 'ADMIN';
+        const isSuperAdmin = user.roles?.some((r: any) => r?.name === 'SUPER_ADMIN') || user.role?.name === 'SUPER_ADMIN';
+
         // HR, ADMIN, and SUPER_ADMIN get to see the global leave request list for approvals.
         // All other roles (like Managers) only see requests from employees who directly report to them.
-        if (roleName !== 'HR' && roleName !== 'ADMIN' && roleName !== 'SUPER_ADMIN') {
+        if (!isHR && !isAdmin && !isSuperAdmin) {
           url += `?managerId=${user.employee?.id || 'none'}`;
         }
       }
 
       const response = await fetch(url, {
-        headers: {  }
+        headers: getTenantHeader()
       });
       if (response.ok) {
         setLeaves(await response.json());
@@ -40,9 +44,9 @@ export const LeaveRequestedPage = () => {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/leave/${id}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/leave/${id}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getTenantHeader() },
         body: JSON.stringify({ status })
       });
       if (response.ok) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '../../components/PageHeader';
 import { Calendar, Search, Plus } from 'lucide-react';
+import { API_BASE_URL, getTenantHeader } from '../../config';
 
 export const LeaveRequestPage = () => {
   const [leaves, setLeaves] = useState<any[]>([]);
@@ -26,16 +27,19 @@ export const LeaveRequestPage = () => {
         setCurrentUser(userObj);
       }
 
-      let leaveUrl = 'http://localhost:3001/api/leave';
-      const roleName = userObj?.role?.name;
+      let leaveUrl = `${API_BASE_URL}/api/leave`;
+      const isHR = userObj?.roles?.some((r: any) => r?.name === 'HR') || userObj?.role?.name === 'HR';
+      const isSuperAdmin = userObj?.roles?.some((r: any) => r?.name === 'SUPER_ADMIN') || userObj?.role?.name === 'SUPER_ADMIN';
+
       // If not HR or Admin, only show requester's own leave requests
-      if (roleName !== 'HR' && roleName !== 'SUPER_ADMIN' && userObj?.employee?.id) {
+      if (!isHR && !isSuperAdmin && userObj?.employee?.id) {
         leaveUrl += `?requesterId=${userObj.employee.id}`;
       }
 
+      const headers = getTenantHeader();
       const [leaveRes, empRes] = await Promise.all([
-        fetch(leaveUrl, { headers: {  } }),
-        fetch('http://localhost:3001/api/employees', { headers: {  } })
+        fetch(leaveUrl, { headers }),
+        fetch(`${API_BASE_URL}/api/employees`, { headers })
       ]);
 
       if (leaveRes.ok) setLeaves(await leaveRes.json());
@@ -63,9 +67,9 @@ export const LeaveRequestPage = () => {
 
   const handleApplyLeave = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/leave', {
+      const response = await fetch(`${API_BASE_URL}/api/leave`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getTenantHeader() },
         body: JSON.stringify({ employeeId, leaveType, startDate, endDate, reason })
       });
       if (response.ok) {
@@ -118,12 +122,12 @@ export const LeaveRequestPage = () => {
           <div className="p-4 bg-slate-50 border-b border-border flex flex-wrap gap-4 items-end">
             <div className="flex-1 min-w-[200px]">
               <label className="block text-xs font-medium text-slate-500 mb-1">Employee</label>
-              {currentUser?.role?.name !== 'HR' && currentUser?.role?.name !== 'SUPER_ADMIN' ? (
+              {!currentUser?.roles?.some((r: any) => r?.name === 'HR' || r?.name === 'SUPER_ADMIN') && currentUser?.role?.name !== 'HR' && currentUser?.role?.name !== 'SUPER_ADMIN' ? (
                 <div className="w-full px-3 py-2 border rounded-md text-sm bg-slate-100 text-slate-700 font-medium">
-                  {currentUser?.employee ? `${currentUser.employee.firstName} ${currentUser.employee.lastName}` : 'Loading...'}
+                  {currentUser?.employee ? `${currentUser.employee.firstName} ${currentUser.employee.lastName}` : (currentUser?.email || 'N/A')}
                 </div>
               ) : (
-                <select value={employeeId} onChange={e => setEmployeeId(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm">
+                <select value={employeeId} onChange={e => setEmployeeId(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm bg-white dark:bg-card">
                   {employees.map(emp => (
                     <option key={emp.id} value={emp.id}>{emp.firstName} {emp.lastName}</option>
                   ))}
