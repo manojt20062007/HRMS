@@ -20,6 +20,10 @@ export const tenantMiddleware = async (req: Request | any, res: Response, next: 
       return res.status(404).json({ error: 'Tenant not found' });
     }
 
+    if (tenant.status === 'INACTIVE') {
+      return res.status(403).json({ error: 'TENANT_INACTIVE', message: 'This account is inactive. Please contact PMJ services.' });
+    }
+
     // Attach the correct Prisma Client and Tenant Info to the request object
     req.prisma = getTenantPrisma(tenant.schemaName);
     req.tenant = tenant;

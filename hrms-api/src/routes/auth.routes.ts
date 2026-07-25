@@ -24,7 +24,7 @@ router.post('/login', async (req: any, res: any) => {
       user = await prisma.user.findUnique({
         where: { email: phone },
         include: {
-          role: {
+          roles: {
             include: { permissions: true }
           },
           employee: true
@@ -37,7 +37,7 @@ router.post('/login', async (req: any, res: any) => {
         include: {
           user: {
             include: {
-              role: {
+              roles: {
                 include: { permissions: true }
               }
             }
@@ -59,34 +59,32 @@ router.post('/login', async (req: any, res: any) => {
     }
 
     // Create JWT Token
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email,
-        role: user.role.name,
-        isSuperAdmin: user.role.name === 'SUPER_ADMIN'
-      },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    // Remove password from response and structure it to include employee details
-    const { password: _, ...userWithoutPassword } = user;
-    const responseUser = {
-      ...userWithoutPassword,
-      employee: employeeProfile ? {
-        id: employeeProfile.id,
-        firstName: employeeProfile.firstName,
-        lastName: employeeProfile.lastName,
-        reportingToId: employeeProfile.reportingToId
-      } : null
-    };
-
-    res.json({
-      message: 'Login successful',
-      token,
-      user: responseUser
-    });
+    const defaultRole = user.roles && user.roles.length > 0 ? user.roles[0].name : '';
+const token = jwt.sign(
+  { 
+    userId: user.id, 
+    email: user.email,
+    roles: user.roles ? user.roles.map((r: any) => r.name) : [],
+    role: defaultRole,
+    isSuperAdmin: defaultRole === 'SUPER_ADMIN'
+  },
+  JWT_SECRET,
+  { expiresIn: '24h' }
+);
+// Update Response object to send the `roles` array
+res.json({
+  message: 'Login successful',
+  token,
+  user: {
+    id: user.id,
+    email: user.email,
+    roles: user.roles, // Pass the array to the frontend
+    role: user.roles[0], // Keep default role for backward compatibility
+    employeeId: employeeProfile?.id,
+    firstName: employeeProfile?.firstName,
+    lastName: employeeProfile?.lastName
+  }
+});
 
   } catch (error) {
     console.error('Login error:', error);
@@ -94,4 +92,4 @@ router.post('/login', async (req: any, res: any) => {
   }
 });
 
-export default router;
+export default router;  

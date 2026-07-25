@@ -71,16 +71,7 @@ const navCategories = [
         ]
       },
       { name: 'Calendar', path: '/calendar' },
-      {
-        name: 'Resignation',
 
-        subChildren: [
-          { name: 'Resignation', path: '/resignation/apply' },
-          { name: 'Resignation L1', path: '/resignation/l1' },
-          { name: 'Resignation L2', path: '/resignation/l2' },
-          { name: 'Resignation L3', path: '/resignation/l3' },
-        ]
-      }
     ]
   },
   {
@@ -102,6 +93,7 @@ const navCategories = [
     icon: LogOut,
     isDropdown: true,
     children: [
+      { name: 'Resignation List', path: '/employee/resignation-list' },
       { name: 'Resignation Approval L1', path: '/resignation/approval-l1' },
       { name: 'Resignation Approval L2', path: '/resignation/approval-l2' }
     ]
@@ -148,6 +140,8 @@ const navCategories = [
     icon: Settings,
     isDropdown: true,
     children: [
+      { name: 'System Tenants', path: '/system/tenants/create' },
+      { name: 'Tenant List', path: '/system/tenants/list' },
       { name: 'Role', path: '/settings/role' },
       { name: 'Leave & Time', path: '/settings/leave' },
       {
@@ -225,13 +219,23 @@ const checkPermission = (path: string | undefined): boolean => {
   try {
     const user = JSON.parse(userStr);
 
+    // Check UNIVERSAL_ADMIN explicitly for tenant management
+    const hasUniversalAdmin = user.roles?.some((r: any) => r?.name === 'UNIVERSAL_ADMIN' || r === 'UNIVERSAL_ADMIN') 
+      || user.role?.name === 'UNIVERSAL_ADMIN' 
+      || user.roleName === 'UNIVERSAL_ADMIN'
+      || user.role === 'UNIVERSAL_ADMIN';
+
+    if (path === '/system/tenants/create' || path === '/system/tenants/list') {
+      return hasUniversalAdmin;
+    }
+
     // Super Admins bypass all checks — check multiple possible data shapes
-    const roleName = user.role?.name || user.roleName || '';
-    if (roleName === 'SUPER_ADMIN') return true;
+    const roleName = user.role?.name || user.roleName || user.role || '';
+    if (roleName === 'SUPER_ADMIN' || hasUniversalAdmin) return true;
 
     // Standardize path key to match matrix page names (remove starting slash)
     const pageKey = path === '/' ? 'dashboard' : (path.startsWith('/') ? path.substring(1) : path);
-    
+
     // Check permission list
     const permissions = user.role?.permissions || user.permissions || [];
     const hasRead = permissions.some(
@@ -274,47 +278,38 @@ export const DashboardLayout = () => {
     setOpenSubDropdown(null);
   };
 
-  // Check if the logged-in user is a super admin — if so, show all nav items with no filtering
-  const isSuperAdmin = (() => {
-    try {
-      const userStr = localStorage.getItem('hrms_user');
-      if (!userStr) return false;
-      const user = JSON.parse(userStr);
-      const roleName = user?.role?.name || user?.roleName || '';
-      return roleName === 'SUPER_ADMIN';
-    } catch { return false; }
-  })();
+  // Note: We no longer bypass checkPermission for SUPER_ADMIN at the top level
+  // because checkPermission itself handles the SUPER_ADMIN bypass,
+  // EXCEPT it enforces UNIVERSAL_ADMIN for tenant creation.
 
-  // Filter categories and children based on permissions (SUPER_ADMIN sees everything)
-  const filteredNavCategories = isSuperAdmin
-    ? navCategories
-    : navCategories
-        .map(cat => {
-          if (!cat.isDropdown) {
-            return checkPermission(cat.path) ? cat : null;
-          }
-          
-          // Filter direct children
-          const filteredChildren = cat.children?.map(child => {
-            // If it has sub-children, always show the group header if any sub-child passes
-            if (child.subChildren) {
-              const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
-              if (filteredSubs.length > 0) {
-                return { ...child, subChildren: filteredSubs };
-              }
-              return null;
+  // Filter categories and children based on permissions
+  const filteredNavCategories = navCategories
+      .map(cat => {
+        if (!cat.isDropdown) {
+          return checkPermission(cat.path) ? cat : null;
+        }
+
+        // Filter direct children
+        const filteredChildren = cat.children?.map(child => {
+          // If it has sub-children, always show the group header if any sub-child passes
+          if (child.subChildren) {
+            const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
+            if (filteredSubs.length > 0) {
+              return { ...child, subChildren: filteredSubs };
             }
-            // Normal child with a direct path — check permission
-            if (!child.path) return null;
-            return checkPermission(child.path) ? child : null;
-          }).filter(Boolean);
-
-          if (filteredChildren && filteredChildren.length > 0) {
-            return { ...cat, children: filteredChildren };
+            return null;
           }
-          return null;
-        })
-        .filter(Boolean) as typeof navCategories;
+          // Normal child with a direct path — check permission
+          if (!child.path) return null;
+          return checkPermission(child.path) ? child : null;
+        }).filter(Boolean);
+
+        if (filteredChildren && filteredChildren.length > 0) {
+          return { ...cat, children: filteredChildren };
+        }
+        return null;
+      })
+      .filter(Boolean) as typeof navCategories;
 
   return (
     <div className="min-h-screen bg-[#F4F7FE] dark:bg-background flex flex-col font-sans">
@@ -513,6 +508,48 @@ export const DashboardLayout = () => {
                       })()}
                     </p>
                   </div>
+                  
+                  {(() => {
+                    const userStr = localStorage.getItem('hrms_user');
+                    if (userStr) {
+                      try {
+                        const user = JSON.parse(userStr);
+                        if (user.roles && user.roles.length > 1) {
+                          return (
+                            <div className="px-3 py-2 border-b border-border mb-1">
+                              <p className="text-xs text-slate-400 mb-1">Switch Role</p>
+                              <div className="flex flex-col gap-1">
+                                {user.roles.map((r: any) => {
+                                  const isActive = user.role?.id === r.id || user.roleName === r.name;
+                                  return (
+                                    <button
+                                      key={r.id}
+                                      onClick={() => {
+                                        if (isActive) return;
+                                        user.role = r;
+                                        user.roleName = r.name;
+                                        localStorage.setItem('hrms_user', JSON.stringify(user));
+                                        window.location.reload();
+                                      }}
+                                      className={`text-left text-sm px-2 py-1.5 rounded-md transition-colors ${
+                                        isActive 
+                                          ? 'bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950 dark:text-indigo-300' 
+                                          : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-muted'
+                                      }`}
+                                    >
+                                      {r.name}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        }
+                      } catch {}
+                    }
+                    return null;
+                  })()}
+
                   <DropdownMenu.Item
                     onClick={() => {
                       localStorage.removeItem('hrms_token');
