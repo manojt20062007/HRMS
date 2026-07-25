@@ -31,3 +31,11 @@ export const getTenantPrisma = (schemaName: string): PrismaClient => {
 
   return tenantClients[schemaName];
 };
+
+export const resetTenantPrisma = (schemaName: string) => {
+  if (tenantClients[schemaName]) {
+    tenantClients[schemaName].$disconnect();
+    delete tenantClients[schemaName];
+    console.log(`[PrismaManager] Reset connection pool for schema: ${schemaName}`);
+  }
+};

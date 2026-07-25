@@ -2,15 +2,17 @@ import express from 'express';
 import { exec } from 'child_process';
 import util from 'util';
 import bcrypt from 'bcrypt';
-import { systemPrisma, getTenantPrisma } from '../lib/prismaManager';
+import { systemPrisma, getTenantPrisma, resetTenantPrisma } from '../lib/prismaManager';
+import { tenantMiddleware } from '../middlewares/tenant.middleware';
+import { authMiddleware, requireRole } from '../middlewares/auth.middleware';
 
 const router = express.Router();
 const execPromise = util.promisify(exec);
 
 // Create a new Tenant (Company)
-router.post('/tenants', async (req, res) => {
+router.post('/tenants', authMiddleware, requireRole('UNIVERSAL_ADMIN'), async (req, res) => {
   try {
-    const { name, domain, schemaName } = req.body;
+    const { name, domain, schemaName, tenantLimit, subscriptionDate } = req.body;
 
     if (!name || !domain || !schemaName) {
       return res.status(400).json({ error: 'name, domain, and schemaName are required' });
@@ -18,7 +20,13 @@ router.post('/tenants', async (req, res) => {
 
     // 1. Create the tenant in the public schema
     const tenant = await systemPrisma.tenant.create({
-      data: { name, domain, schemaName },
+      data: { 
+        name, 
+        domain, 
+        schemaName,
+        tenantLimit: tenantLimit || 50,
+        subscriptionDate: subscriptionDate ? new Date(subscriptionDate) : null,
+      },
     });
 
     console.log(`[Tenant Provisioning] Created Tenant record: ${tenant.id}`);
@@ -28,19 +36,22 @@ router.post('/tenants', async (req, res) => {
     console.log(`[Tenant Provisioning] Created PostgreSQL schema: ${schemaName}`);
 
     // 3. Run Prisma migrations on the new schema
-    const databaseUrl = process.env.DATABASE_URL;
-    const tenantDbUrl = `${databaseUrl}?schema=${schemaName}`;
+    const databaseUrl = process.env.DATABASE_URL || '';
+    const urlObj = new URL(databaseUrl);
+    urlObj.searchParams.set('schema', schemaName);
+    const tenantDbUrl = urlObj.toString();
     
     console.log(`[Tenant Provisioning] Running migrations for ${schemaName}...`);
     
-    // We use migrate deploy because we just want to apply existing migrations to the new schema
-    await execPromise('npx prisma migrate deploy', {
+    // We use db push to sync the schema without relying on migration files
+    await execPromise('npx prisma db push --skip-generate --accept-data-loss', {
       env: { ...process.env, DATABASE_URL: tenantDbUrl }
     });
 
     console.log(`[Tenant Provisioning] Migrations successful for ${schemaName}`);
 
     // 4. Seed the new tenant schema with SUPER_ADMIN
+    resetTenantPrisma(schemaName);
     const tenantPrisma = getTenantPrisma(schemaName);
     
     const superAdminRole = await tenantPrisma.role.create({
@@ -58,7 +69,7 @@ router.post('/tenants', async (req, res) => {
       data: {
         email: adminEmail,
         password: hashedPassword,
-        roleId: superAdminRole.id,
+        roles: { connect: { id: superAdminRole.id } },
       },
     });
 
@@ -79,13 +90,54 @@ router.post('/tenants', async (req, res) => {
   }
 });
 
-// List all Tenants
-router.get('/tenants', async (req, res) => {
+// Public route to check if a tenant is active
+router.get('/tenant-status/:domain', async (req, res) => {
   try {
-    const tenants = await systemPrisma.tenant.findMany();
+    const tenant = await systemPrisma.tenant.findUnique({
+      where: { domain: req.params.domain }
+    });
+    
+    if (!tenant) {
+      return res.status(404).json({ error: 'Tenant not found' });
+    }
+    
+    res.json({ status: tenant.status });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// List all Tenants
+router.get('/tenants', authMiddleware, requireRole('UNIVERSAL_ADMIN'), async (req, res) => {
+  try {
+    const tenants = await systemPrisma.tenant.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
     res.json(tenants);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update a Tenant
+router.put('/tenants/:id', authMiddleware, requireRole('UNIVERSAL_ADMIN'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tenantLimit, subscriptionDate, status } = req.body;
+
+    const updatedTenant = await systemPrisma.tenant.update({
+      where: { id },
+      data: {
+        tenantLimit: parseInt(tenantLimit) || 50,
+        subscriptionDate: subscriptionDate ? new Date(subscriptionDate) : null,
+        status: status || 'ACTIVE',
+      }
+    });
+
+    res.json({ message: 'Tenant updated successfully', tenant: updatedTenant });
+  } catch (error) {
+    console.error('[Tenant Update Error]', error);
+    res.status(500).json({ error: 'Internal server error during tenant update' });
   }
 });
 

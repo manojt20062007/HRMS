@@ -9,7 +9,7 @@ export const AssignRolePage = () => {
 
   // Form State
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-  const [selectedRoleId, setSelectedRoleId] = useState('');
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
   const [selectedReportingId, setSelectedReportingId] = useState('');
   
   const [submitting, setSubmitting] = useState(false);
@@ -38,8 +38,8 @@ export const AssignRolePage = () => {
   }, []);
 
   const handleSubmit = async () => {
-    if (!selectedEmployeeId || !selectedRoleId) {
-      alert('Please select an employee and a role.');
+    if (!selectedEmployeeId || selectedRoleIds.length === 0) {
+      alert('Please select an employee and at least one role.');
       return;
     }
     setSubmitting(true);
@@ -50,15 +50,15 @@ export const AssignRolePage = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          roleId: selectedRoleId,
+          roleIds: selectedRoleIds,
           reportingToId: selectedReportingId || null
         })
       });
       if (res.ok) {
-        alert('Role and Reporting Manager assigned successfully!');
+        alert('Roles and Reporting Manager assigned successfully!');
         // Reset form
         setSelectedEmployeeId('');
-        setSelectedRoleId('');
+        setSelectedRoleIds([]);
         setSelectedReportingId('');
         // Refresh grid
         await fetchData();
@@ -75,7 +75,7 @@ export const AssignRolePage = () => {
 
   const handleClear = () => {
     setSelectedEmployeeId('');
-    setSelectedRoleId('');
+    setSelectedRoleIds([]);
     setSelectedReportingId('');
   };
 
@@ -102,17 +102,21 @@ export const AssignRolePage = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Roles <span className="text-red-500">*</span></label>
             <select 
-              value={selectedRoleId}
-              onChange={e => setSelectedRoleId(e.target.value)}
-              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500"
+              multiple
+              value={selectedRoleIds}
+              onChange={e => {
+                const options = Array.from(e.target.selectedOptions, option => option.value);
+                setSelectedRoleIds(options);
+              }}
+              className="w-full text-sm border border-border rounded-md px-3 py-2 bg-transparent outline-none focus:border-indigo-500 h-24"
             >
-              <option value="">Select Role</option>
               {roles.map(role => (
                 <option key={role.id} value={role.id}>{role.name}</option>
               ))}
             </select>
+            <p className="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reporting To</label>
@@ -172,9 +176,19 @@ export const AssignRolePage = () => {
                       <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">{emp.firstName} {emp.lastName}</td>
                       <td className="px-6 py-4">{emp.personalEmail || emp.user?.email || 'N/A'}</td>
                       <td className="px-6 py-4 text-center">
-                        <span className="inline-block px-2.5 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold rounded-full">
-                          {emp.user?.role?.name || 'EMPLOYEE'}
-                        </span>
+                        <div className="flex flex-wrap gap-1 justify-center">
+                          {emp.user?.roles && emp.user.roles.length > 0 ? (
+                            emp.user.roles.map((r: any) => (
+                              <span key={r.id} className="inline-block px-2.5 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold rounded-full">
+                                {r.name}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="inline-block px-2.5 py-1 bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold rounded-full">
+                              {emp.user?.role?.name || 'EMPLOYEE'}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         {reportingManager ? `${reportingManager.firstName} ${reportingManager.lastName}` : <span className="text-slate-400 italic">—</span>}

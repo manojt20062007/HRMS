@@ -296,7 +296,7 @@ router.put('/:id/assign-role', async (req: any, res: any) => {
   try {
     const prisma = req.prisma;
     const { id } = req.params;
-    const { roleId, reportingToId } = req.body;
+    const { roleIds, reportingToId } = req.body;
 
     const employee = await prisma.employee.findUnique({ where: { id } });
     if (!employee) {
@@ -312,12 +312,17 @@ router.put('/:id/assign-role', async (req: any, res: any) => {
     });
 
     // Update Employee's User Role
-    if (roleId) {
-      await prisma.user.update({
-        where: { id: employee.userId },
-        data: { roleId }
-      });
+    if (roleIds && Array.isArray(roleIds)) {
+  await prisma.user.update({
+    where: { id: employee.userId },
+    data: { 
+      roles: {
+        // This clears existing roles and sets the new ones
+        set: roleIds.map((id: string) => ({ id }))
+      } 
     }
+  });
+}
 
     res.json({ success: true, message: 'Role and reporting details updated successfully', employee: updatedEmployee });
   } catch (error) {

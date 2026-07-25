@@ -25,14 +25,18 @@ const port = process.env.PORT || 3001;
 
 const allowedOrigins = [
   'http://localhost:5173',
-  process.env.FRONTEND_URL
+  'http://pmj.localhost:5173',
+  process.env.FRONTEND_DOMAIN ? `https://${process.env.FRONTEND_DOMAIN}` : null
 ].filter(Boolean) as string[];
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, or postman)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+    const frontendDomain = process.env.FRONTEND_DOMAIN;
+    const isProdSubdomain = frontendDomain && origin.endsWith(`.${frontendDomain}`);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || origin.endsWith('.localhost:5173') || isProdSubdomain) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

@@ -11,12 +11,15 @@ datasource db {
 // SYSTEM (Public Schema)
 // ==========================================
 model Tenant {
-  id         String   @id @default(uuid())
-  name       String   
-  domain     String   @unique 
-  schemaName String   @unique 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id               String    @id @default(uuid())
+  name             String   
+  domain           String    @unique 
+  schemaName       String    @unique 
+  tenantLimit      Int       @default(50)
+  subscriptionDate DateTime? 
+  status           String    @default("ACTIVE")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 // ==========================================
@@ -47,8 +50,7 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
-  roleId    String
-  role      Role     @relation(fields: [roleId], references: [id])
+  roles     Role[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
