@@ -200,7 +200,7 @@ router.get('/', async (req: any, res: any) => {
     const employees = await prisma.employee.findMany({
       include: {
         user: {
-          include: { role: true }
+          include: { roles: true }
         }
       }
     });
@@ -218,7 +218,7 @@ router.get('/:id', async (req: any, res: any) => {
     const employee = await prisma.employee.findUnique({
       where: { id },
       include: {
-        user: { include: { role: true } },
+        user: { include: { roles: true } },
         families: true,
         bank: true,
         address: true,
