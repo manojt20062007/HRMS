@@ -46,3 +46,7 @@ export const getBaseDomain = (): string => {
   }
   return hostname;
 };
+
+export const getTenantSeparator = (): string => {
+  return import.meta.env.VITE_TENANT_SEPARATOR || '.';
+};

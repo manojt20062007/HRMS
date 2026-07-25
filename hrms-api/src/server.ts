@@ -37,7 +37,7 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps, curl, or postman)
     if (!origin) return callback(null, true);
     const frontendDomain = process.env.FRONTEND_DOMAIN || (process.env.FRONTEND_URL !== '*' ? process.env.FRONTEND_URL : null);
-    const isProdSubdomain = frontendDomain && origin.endsWith(`.${frontendDomain}`);
+    const isProdSubdomain = frontendDomain && (origin.endsWith(`.${frontendDomain}`) || origin.endsWith(`-${frontendDomain}`));
     
     if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || origin.endsWith('.localhost:5173') || isProdSubdomain) {
       callback(null, true);
