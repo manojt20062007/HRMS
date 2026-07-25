@@ -188,6 +188,10 @@ router.post('/', async (req: any, res: any) => {
 
     res.status(201).json({ message: 'Employee saved successfully', employee });
   } catch (error: any) {
+    if (error.code === 'P2002') {
+      const target = error.meta?.target?.[0] || 'Field';
+      return res.status(400).json({ error: `${target === 'employeeIdString' ? 'Employee ID' : target} already exists. Please use a unique value.` });
+    }
     console.error('Error saving employee:', error);
     res.status(500).json({ error: 'Internal server error' });
   }

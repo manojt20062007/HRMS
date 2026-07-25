@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '../../components/PageHeader';
 import { Calendar } from 'lucide-react';
+import { API_BASE_URL, getTenantHeader } from '../../config';
 
 export const LeaveStatusPage = () => {
   const [leaves, setLeaves] = useState<any[]>([]);
@@ -9,17 +10,18 @@ export const LeaveStatusPage = () => {
   useEffect(() => {
     const fetchLeaves = async () => {
       try {
-        let url = 'http://localhost:3001/api/leave';
+        let url = `${API_BASE_URL}/api/leave`;
         const userStr = localStorage.getItem('hrms_user');
         if (userStr) {
           const user = JSON.parse(userStr);
-          const roleName = user.role?.name;
-          if (roleName !== 'HR' && user.employee?.id) {
+          const isHR = user.roles?.some((r: any) => r?.name === 'HR') || user.role?.name === 'HR';
+          const isSuperAdmin = user.roles?.some((r: any) => r?.name === 'SUPER_ADMIN') || user.role?.name === 'SUPER_ADMIN';
+          if (!isHR && !isSuperAdmin && user.employee?.id) {
             url += `?requesterId=${user.employee.id}`;
           }
         }
         const response = await fetch(url, {
-          headers: {  }
+          headers: getTenantHeader()
         });
         if (response.ok) {
           setLeaves(await response.json());
