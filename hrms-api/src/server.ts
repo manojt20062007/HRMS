@@ -23,18 +23,21 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
+const frontendEnv = process.env.FRONTEND_DOMAIN || process.env.FRONTEND_URL;
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://pmj.localhost:5173',
-  process.env.FRONTEND_DOMAIN ? `https://${process.env.FRONTEND_DOMAIN}` : null
+  frontendEnv && frontendEnv !== '*' ? `https://${frontendEnv}` : null,
+  frontendEnv === '*' ? '*' : null
 ].filter(Boolean) as string[];
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, or postman)
     if (!origin) return callback(null, true);
-    const frontendDomain = process.env.FRONTEND_DOMAIN;
-    const isProdSubdomain = frontendDomain && origin.endsWith(`.${frontendDomain}`);
+    const frontendDomain = process.env.FRONTEND_DOMAIN || (process.env.FRONTEND_URL !== '*' ? process.env.FRONTEND_URL : null);
+    const isProdSubdomain = frontendDomain && (origin.endsWith(`.${frontendDomain}`) || origin.endsWith(`-${frontendDomain}`));
     
     if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || origin.endsWith('.localhost:5173') || isProdSubdomain) {
       callback(null, true);

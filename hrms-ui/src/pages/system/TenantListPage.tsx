@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL, getBaseDomain } from '../../config';
+import { API_BASE_URL, getBaseDomain, getTenantSeparator } from '../../config';
 import { Building2, Edit2, ShieldAlert, CheckCircle, XCircle } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 
@@ -135,7 +135,7 @@ export const TenantListPage = () => {
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                     <span className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-xs font-mono">
-                      {t.domain}.{getBaseDomain()}
+                      {t.domain}{getTenantSeparator()}{getBaseDomain()}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
