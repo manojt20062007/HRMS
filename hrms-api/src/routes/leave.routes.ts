@@ -35,7 +35,7 @@ router.get('/', async (req: any, res: any) => {
             lastName: true, 
             employeeIdString: true,
             user: {
-              include: { role: true }
+              include: { roles: true }
             }
           } 
         },

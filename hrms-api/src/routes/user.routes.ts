@@ -30,7 +30,7 @@ router.post('/', requireSuperAdmin, async (req: any, res: any) => {
         roleId,
       },
       include: {
-        role: true
+        roles: true
       }
     });
 

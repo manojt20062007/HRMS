@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient({
   datasources: {
-    db: { url: 'postgresql://postgres:postgrespassword@localhost:5432/saas_hrms?schema=schema_pmj' }
+    db: { url: process.env.DATABASE_URL }
   }
 });
 
