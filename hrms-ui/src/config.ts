@@ -10,6 +10,11 @@ export const getTenantId = (): string => {
     return localStorage.getItem('hrms_tenant_dev') || 'pmj';
   }
 
+  // If visiting the exact base domain (e.g. pmjhrms.vercel.app), they are the Universal Admin (pmj)
+  if (import.meta.env.VITE_BASE_DOMAIN && hostname === import.meta.env.VITE_BASE_DOMAIN) {
+    return 'pmj';
+  }
+
   // Split hostname parts
   const parts = hostname.split('.');
   
