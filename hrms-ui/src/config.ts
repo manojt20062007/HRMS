@@ -55,3 +55,7 @@ export const getBaseDomain = (): string => {
 export const getTenantSeparator = (): string => {
   return import.meta.env.VITE_TENANT_SEPARATOR || '.';
 };
+
+export const getTenantHeader = (): Record<string, string> => {
+  return { 'x-tenant-id': getTenantId() };
+};
