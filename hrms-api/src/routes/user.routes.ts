@@ -27,7 +27,7 @@ router.post('/', requireSuperAdmin, async (req: any, res: any) => {
       data: {
         email,
         password: hashedPassword,
-        roleId,
+        roles: { connect: { id: roleId } },
       },
       include: {
         roles: true
