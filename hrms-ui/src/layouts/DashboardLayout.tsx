@@ -24,7 +24,6 @@ const navCategories = [
       { name: 'All Employees', path: '/employees/all' },
       { name: 'Assign Role', path: '/employees/assign-role' },
       { name: 'Assign Project', path: '/employees/assign-project' },
-      { name: 'Resignation List', path: '/employee/resignation-list' }
     ]
   },
   {
@@ -220,8 +219,8 @@ const checkPermission = (path: string | undefined): boolean => {
     const user = JSON.parse(userStr);
 
     // Check UNIVERSAL_ADMIN explicitly for tenant management
-    const hasUniversalAdmin = user.roles?.some((r: any) => r?.name === 'UNIVERSAL_ADMIN' || r === 'UNIVERSAL_ADMIN') 
-      || user.role?.name === 'UNIVERSAL_ADMIN' 
+    const hasUniversalAdmin = user.roles?.some((r: any) => r?.name === 'UNIVERSAL_ADMIN' || r === 'UNIVERSAL_ADMIN')
+      || user.role?.name === 'UNIVERSAL_ADMIN'
       || user.roleName === 'UNIVERSAL_ADMIN'
       || user.role === 'UNIVERSAL_ADMIN';
 
@@ -284,32 +283,32 @@ export const DashboardLayout = () => {
 
   // Filter categories and children based on permissions
   const filteredNavCategories = navCategories
-      .map(cat => {
-        if (!cat.isDropdown) {
-          return checkPermission(cat.path) ? cat : null;
-        }
+    .map(cat => {
+      if (!cat.isDropdown) {
+        return checkPermission(cat.path) ? cat : null;
+      }
 
-        // Filter direct children
-        const filteredChildren = cat.children?.map(child => {
-          // If it has sub-children, always show the group header if any sub-child passes
-          if (child.subChildren) {
-            const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
-            if (filteredSubs.length > 0) {
-              return { ...child, subChildren: filteredSubs };
-            }
-            return null;
+      // Filter direct children
+      const filteredChildren = cat.children?.map(child => {
+        // If it has sub-children, always show the group header if any sub-child passes
+        if (child.subChildren) {
+          const filteredSubs = child.subChildren.filter(sub => checkPermission(sub.path));
+          if (filteredSubs.length > 0) {
+            return { ...child, subChildren: filteredSubs };
           }
-          // Normal child with a direct path — check permission
-          if (!child.path) return null;
-          return checkPermission(child.path) ? child : null;
-        }).filter(Boolean);
-
-        if (filteredChildren && filteredChildren.length > 0) {
-          return { ...cat, children: filteredChildren };
+          return null;
         }
-        return null;
-      })
-      .filter(Boolean) as typeof navCategories;
+        // Normal child with a direct path — check permission
+        if (!child.path) return null;
+        return checkPermission(child.path) ? child : null;
+      }).filter(Boolean);
+
+      if (filteredChildren && filteredChildren.length > 0) {
+        return { ...cat, children: filteredChildren };
+      }
+      return null;
+    })
+    .filter(Boolean) as typeof navCategories;
 
   return (
     <div className="min-h-screen bg-[#F4F7FE] dark:bg-background flex flex-col font-sans">
@@ -508,7 +507,7 @@ export const DashboardLayout = () => {
                       })()}
                     </p>
                   </div>
-                  
+
                   {(() => {
                     const userStr = localStorage.getItem('hrms_user');
                     if (userStr) {
@@ -531,11 +530,10 @@ export const DashboardLayout = () => {
                                         localStorage.setItem('hrms_user', JSON.stringify(user));
                                         window.location.reload();
                                       }}
-                                      className={`text-left text-sm px-2 py-1.5 rounded-md transition-colors ${
-                                        isActive 
-                                          ? 'bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950 dark:text-indigo-300' 
+                                      className={`text-left text-sm px-2 py-1.5 rounded-md transition-colors ${isActive
+                                          ? 'bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950 dark:text-indigo-300'
                                           : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-muted'
-                                      }`}
+                                        }`}
                                     >
                                       {r.name}
                                     </button>
@@ -545,7 +543,7 @@ export const DashboardLayout = () => {
                             </div>
                           );
                         }
-                      } catch {}
+                      } catch { }
                     }
                     return null;
                   })()}

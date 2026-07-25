@@ -50,7 +50,7 @@ router.post('/', async (req: any, res: any) => {
       }
       const hashedPassword = await bcrypt.hash(password, 10);
       user = await prisma.user.create({
-        data: { email, password: hashedPassword, roleId: finalRoleId }
+        data: { email, password: hashedPassword, roles: { connect: { id: finalRoleId } } }
       });
     } else if (password) {
       // If user exists and a new password is provided, update it
