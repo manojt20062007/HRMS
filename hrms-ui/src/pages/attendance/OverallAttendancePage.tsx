@@ -5,11 +5,13 @@ import { Calendar } from 'lucide-react';
 export const OverallAttendancePage = () => {
   const [attendance, setAttendance] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
     const fetchAttendance = async () => {
+      setLoading(true);
       try {
-        const response = await fetch('http://localhost:3001/api/attendance', {
+        const response = await fetch(`http://localhost:3001/api/attendance?date=${selectedDate}`, {
           headers: {  }
         });
         if (response.ok) {
@@ -22,7 +24,7 @@ export const OverallAttendancePage = () => {
       }
     };
     fetchAttendance();
-  }, []);
+  }, [selectedDate]);
   return (
     <div className="max-w-[1600px] mx-auto pb-10">
       <PageHeader 
@@ -36,10 +38,10 @@ export const OverallAttendancePage = () => {
           <div className="relative">
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <input 
-              type="text" 
-              defaultValue="dd-mm-yyyy"
+              type="date" 
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
               className="w-40 pl-3 pr-9 py-1.5 bg-white dark:bg-card border border-border rounded-md text-sm outline-none focus:border-indigo-500 shadow-sm text-slate-500 cursor-pointer"
-              readOnly
             />
           </div>
           <button className="px-4 py-1.5 bg-white border border-border rounded-md text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-colors">

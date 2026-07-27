@@ -8,6 +8,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { cn } from '../lib/utils';
+import { Chatbot } from '../components/Chatbot';
 
 const navCategories = [
   {
@@ -69,7 +70,7 @@ const navCategories = [
           { name: 'Travel Expenses Approval L2', path: '/travel/l2' },
         ]
       },
-      { name: 'Calendar', path: '/calendar' },
+
 
     ]
   },
@@ -228,7 +229,6 @@ const checkPermission = (path: string | undefined): boolean => {
       return hasUniversalAdmin;
     }
 
-    // Super Admins bypass all checks — check multiple possible data shapes
     const roleName = user.role?.name || user.roleName || user.role || '';
     if (roleName === 'SUPER_ADMIN' || hasUniversalAdmin) return true;
 
@@ -531,8 +531,8 @@ export const DashboardLayout = () => {
                                         window.location.reload();
                                       }}
                                       className={`text-left text-sm px-2 py-1.5 rounded-md transition-colors ${isActive
-                                          ? 'bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950 dark:text-indigo-300'
-                                          : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-muted'
+                                        ? 'bg-indigo-50 text-indigo-700 font-medium dark:bg-indigo-950 dark:text-indigo-300'
+                                        : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-muted'
                                         }`}
                                     >
                                       {r.name}
@@ -641,6 +641,7 @@ export const DashboardLayout = () => {
           <Outlet />
         </div>
       </main>
+      <Chatbot />
     </div>
   );
 };

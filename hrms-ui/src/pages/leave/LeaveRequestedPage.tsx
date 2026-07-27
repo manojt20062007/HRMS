@@ -21,7 +21,7 @@ export const LeaveRequestedPage = () => {
         // HR, ADMIN, and SUPER_ADMIN get to see the global leave request list for approvals.
         // All other roles (like Managers) only see requests from employees who directly report to them.
         if (!isHR && !isAdmin && !isSuperAdmin) {
-          url += `?managerId=${user.employee?.id || 'none'}`;
+          url += `?managerId=${user.employeeId || 'none'}`;
         }
       }
 

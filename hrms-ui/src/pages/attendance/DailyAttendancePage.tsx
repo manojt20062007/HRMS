@@ -5,20 +5,37 @@ import { Calendar, Settings, FileSpreadsheet, Clock, Check } from 'lucide-react'
 export const DailyAttendancePage = () => {
   const [employees, setEmployees] = useState<any[]>([]);
   const [attendance, setAttendance] = useState<any[]>([]);
+  const [leaves, setLeaves] = useState<any[]>([]);
+  const [localRecords, setLocalRecords] = useState<Record<string, { status: string, checkIn: string, checkOut: string }>>({});
   const [loading, setLoading] = useState(true);
   
   // Use today's date formatted as YYYY-MM-DD for the input
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
+  useEffect(() => {
+    const recordsObj: Record<string, { status: string, checkIn: string, checkOut: string }> = {};
+    employees.forEach(emp => {
+      const record = attendance.find(a => a.employeeId === emp.id);
+      recordsObj[emp.id] = {
+        status: record?.status || 'ABSENT',
+        checkIn: record?.checkIn ? new Date(record.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false}) : '--:--',
+        checkOut: record?.checkOut ? new Date(record.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false}) : '--:--'
+      };
+    });
+    setLocalRecords(recordsObj);
+  }, [employees, attendance]);
+
   const fetchData = async () => {
     try {
-      const [empRes, attRes] = await Promise.all([
+      const [empRes, attRes, leaveRes] = await Promise.all([
         fetch('http://localhost:3001/api/employees', { headers: {  } }),
-        fetch(`http://localhost:3001/api/attendance?date=${selectedDate}`, { headers: {  } })
+        fetch(`http://localhost:3001/api/attendance?date=${selectedDate}`, { headers: {  } }),
+        fetch(`http://localhost:3001/api/leave`, { headers: {  } })
       ]);
       
       if (empRes.ok) setEmployees(await empRes.json());
       if (attRes.ok) setAttendance(await attRes.json());
+      if (leaveRes.ok) setLeaves(await leaveRes.json());
     } catch (error) {
       console.error('Failed to fetch data', error);
     } finally {
@@ -30,18 +47,30 @@ export const DailyAttendancePage = () => {
     fetchData();
   }, [selectedDate]);
 
-  const handleMarkAttendance = async (employeeId: string, type: string, status: string) => {
+  const handleSubmitBulkAttendance = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/attendance/mark', {
+      const records = Object.entries(localRecords).map(([employeeId, data]) => ({
+        employeeId,
+        status: data.status,
+        checkIn: data.checkIn,
+        checkOut: data.checkOut
+      }));
+
+      const response = await fetch('http://localhost:3001/api/attendance/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ employeeId, type, status })
+        body: JSON.stringify({ date: selectedDate, records })
       });
+      
       if (response.ok) {
+        alert('Attendance updated successfully');
         fetchData();
+      } else {
+        alert('Failed to update attendance');
       }
     } catch (error) {
       console.error(error);
+      alert('Error updating attendance');
     }
   };
   return (
@@ -91,10 +120,23 @@ export const DailyAttendancePage = () => {
                 <tr><td colSpan={6} className="px-6 py-8 text-slate-500 text-center font-medium">No employees found.</td></tr>
               ) : (
                 employees.map((emp, i) => {
-                  const record = attendance.find(a => a.employeeId === emp.id);
-                  const inTime = record?.checkIn ? new Date(record.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
-                  const outTime = record?.checkOut ? new Date(record.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
-                  const status = record?.status || 'ABSENT';
+                  const localRecord = localRecords[emp.id] || { status: 'ABSENT', checkIn: '--:--', checkOut: '--:--' };
+                  const status = localRecord.status;
+                  const inTime = localRecord.checkIn;
+                  const outTime = localRecord.checkOut;
+
+                  const targetDate = new Date(selectedDate);
+                  targetDate.setHours(0,0,0,0);
+                  
+                  const employeeLeave = leaves.find(l => {
+                     if (l.employeeId !== emp.id) return false;
+                     const start = new Date(l.startDate);
+                     start.setHours(0,0,0,0);
+                     const end = new Date(l.endDate);
+                     end.setHours(0,0,0,0);
+                     return targetDate >= start && targetDate <= end;
+                  });
+                  const leaveStatusText = employeeLeave ? `${employeeLeave.leaveType} (${employeeLeave.status})` : '-';
 
                   return (
                     <tr key={emp.id} className={`${i % 2 !== 0 ? 'bg-blue-50/30' : 'bg-white'} hover:bg-slate-50 transition-colors`}>
@@ -113,19 +155,27 @@ export const DailyAttendancePage = () => {
                           <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
                         </label>
                       </td>
-                      <td className="px-4 py-4 text-slate-600 font-medium">{inTime}</td>
-                      <td className="px-4 py-4 text-slate-600 font-medium">{outTime}</td>
-                      <td className="px-4 py-4 text-slate-500">-</td>
+                      <td className="px-4 py-4 text-slate-600 font-medium">
+                        <input type="time" value={inTime !== '--:--' ? inTime : ''} 
+                          onChange={(e) => setLocalRecords(prev => ({ ...prev, [emp.id]: { ...prev[emp.id], checkIn: e.target.value || '--:--' } }))}
+                          className="px-2 py-1 border border-slate-200 rounded-md bg-white text-xs font-medium focus:outline-none focus:border-indigo-400" />
+                      </td>
+                      <td className="px-4 py-4 text-slate-600 font-medium">
+                        <input type="time" value={outTime !== '--:--' ? outTime : ''} 
+                          onChange={(e) => setLocalRecords(prev => ({ ...prev, [emp.id]: { ...prev[emp.id], checkOut: e.target.value || '--:--' } }))}
+                          className="px-2 py-1 border border-slate-200 rounded-md bg-white text-xs font-medium focus:outline-none focus:border-indigo-400" />
+                      </td>
+                      <td className="px-4 py-4 text-slate-500 font-semibold">{leaveStatusText}</td>
                       <td className="px-4 py-4">
                         <select 
                           value={status} 
                           onChange={(e) => {
-                            if (!record) {
-                              handleMarkAttendance(emp.id, 'CHECK_IN', e.target.value);
-                            }
+                            setLocalRecords(prev => ({ ...prev, [emp.id]: { ...prev[emp.id], status: e.target.value } }));
                           }}
                           className={`w-28 px-2 py-1.5 border rounded-md text-xs font-semibold focus:outline-none 
-                            ${status === 'PRESENT' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'}`}
+                            ${status === 'PRESENT' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 
+                              status === 'ABSENT' ? 'border-rose-200 bg-rose-50 text-rose-700' :
+                              'border-amber-200 bg-amber-50 text-amber-700'}`}
                         >
                           <option value="PRESENT">Present</option>
                           <option value="ABSENT">Absent</option>
@@ -148,7 +198,9 @@ export const DailyAttendancePage = () => {
 
       {/* Floating Submit Button */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-        <button className="flex items-center gap-2 px-8 py-2.5 bg-white text-indigo-600 border border-indigo-200 rounded-full text-sm font-semibold hover:bg-indigo-50 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] transition-all">
+        <button 
+          onClick={handleSubmitBulkAttendance}
+          className="flex items-center gap-2 px-8 py-2.5 bg-white text-indigo-600 border border-indigo-200 rounded-full text-sm font-semibold hover:bg-indigo-50 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)] transition-all">
           <span className="flex items-center justify-center w-5 h-5 bg-indigo-600 rounded text-white"><Check className="w-3 h-3 stroke-[3]" /></span>
           Submit Attendance
         </button>

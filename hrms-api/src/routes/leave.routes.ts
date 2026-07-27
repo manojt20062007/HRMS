@@ -12,21 +12,25 @@ router.get('/', async (req: any, res: any) => {
     console.log('[Leave API] GET / leaves. query:', { managerId, requesterId });
 
     let whereClause: any = {};
-    if (managerId && managerId !== 'undefined' && managerId !== 'null') {
-      whereClause = {
+    let filter: any = {};
+    if (requesterId) {
+      filter = {
+        OR: [
+          { employeeId: String(requesterId) },
+          { employee: { reportingToId: String(requesterId) } }
+        ]
+      };
+    } else if (managerId && managerId !== 'undefined' && managerId !== 'null') {
+      filter = {
         employee: {
           reportingToId: managerId
         }
       };
-    } else if (requesterId && requesterId !== 'undefined' && requesterId !== 'null') {
-      whereClause = {
-        employeeId: requesterId
-      };
     }
-    console.log('[Leave API] constructed whereClause:', JSON.stringify(whereClause));
+    console.log('[Leave API] constructed filter:', JSON.stringify(filter));
 
     const leaves = await prisma.leaveRequest.findMany({
-      where: whereClause,
+      where: filter,
       include: {
         employee: { 
           select: { 

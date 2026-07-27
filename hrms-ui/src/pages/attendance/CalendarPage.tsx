@@ -10,8 +10,19 @@ export const CalendarPage = () => {
 
   useEffect(() => {
     const fetchAttendance = async () => {
+      setLoading(true);
       try {
-        const response = await fetch('http://localhost:3001/api/attendance', {
+        const userStr = localStorage.getItem('hrms_user');
+        if (!userStr) return;
+        const user = JSON.parse(userStr);
+        const employeeId = user.employeeId;
+        if (!employeeId) return;
+
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const monthStr = `${year}-${month}`;
+
+        const response = await fetch(`http://localhost:3001/api/attendance?employeeId=${employeeId}&month=${monthStr}`, {
           headers: {  }
         });
         if (response.ok) {
@@ -24,7 +35,11 @@ export const CalendarPage = () => {
       }
     };
     fetchAttendance();
-  }, []);
+  }, [currentDate]);
+
+  const handlePrevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  const handleToday = () => setCurrentDate(new Date());
 
   // Generate calendar days for the current month
   const getDaysInMonth = () => {
@@ -103,14 +118,14 @@ export const CalendarPage = () => {
         <div className="p-6 flex items-center justify-between border-b border-border">
           <div className="flex items-center gap-2">
             <div className="flex rounded-md shadow-sm">
-              <button className="px-3 py-1.5 bg-[#2c3e50] text-white rounded-l-md hover:bg-[#34495e] transition-colors border-r border-[#34495e]">
+              <button onClick={handlePrevMonth} className="px-3 py-1.5 bg-[#2c3e50] text-white rounded-l-md hover:bg-[#34495e] transition-colors border-r border-[#34495e]">
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <button className="px-3 py-1.5 bg-[#2c3e50] text-white rounded-r-md hover:bg-[#34495e] transition-colors">
+              <button onClick={handleNextMonth} className="px-3 py-1.5 bg-[#2c3e50] text-white rounded-r-md hover:bg-[#34495e] transition-colors">
                 <ChevronRight className="h-5 w-5" />
               </button>
             </div>
-            <button className="px-4 py-1.5 bg-[#7f8c8d] text-white rounded-md text-sm font-medium hover:bg-[#95a5a6] transition-colors">
+            <button onClick={handleToday} className="px-4 py-1.5 bg-[#7f8c8d] text-white rounded-md text-sm font-medium hover:bg-[#95a5a6] transition-colors">
               today
             </button>
           </div>

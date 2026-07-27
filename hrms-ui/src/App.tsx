@@ -83,6 +83,9 @@ import { ProjectListPage } from './pages/more/ProjectListPage';
 import { ProcessMasterListPage } from './pages/more/ProcessMasterListPage';
 import { ModuleMasterPage } from './pages/more/ModuleMasterPage';
 import { CalendarPage } from './pages/attendance/CalendarPage';
+import { WorklogEntryPage } from './pages/worklog/WorklogEntryPage';
+import { WorklogApprovalL1Page } from './pages/worklog/WorklogApprovalL1Page';
+import { WorklogApprovalL2Page } from './pages/worklog/WorklogApprovalL2Page';
 import { ResignationListPage } from './pages/employee/ResignationListPage';
 import { ResignationApprovalL1Page } from './pages/resignation/ResignationApprovalL1Page';
 import { ResignationApprovalL2Page } from './pages/resignation/ResignationApprovalL2Page';
@@ -236,7 +239,12 @@ const App = () => {
             <Route path="more/projects/master" element={<ProjectMasterPage />} />
             <Route path="more/projects/list" element={<ProjectListPage />} />
             <Route path="more/projects/process" element={<ProcessMasterListPage />} />
-            <Route path="more/projects/module" element={<ModuleMasterPage />} />
+            <Route path="more/modules" element={<ModuleMasterPage />} />
+            
+            {/* Worklog */}
+            <Route path="worklog/entry" element={<WorklogEntryPage />} />
+            <Route path="worklog/l1" element={<WorklogApprovalL1Page />} />
+            <Route path="worklog/l2" element={<WorklogApprovalL2Page />} />
 
             {/* Attendance Routes */}
             <Route path="attendance/calendar" element={<CalendarPage />} />

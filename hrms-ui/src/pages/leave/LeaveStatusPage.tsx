@@ -14,10 +14,8 @@ export const LeaveStatusPage = () => {
         const userStr = localStorage.getItem('hrms_user');
         if (userStr) {
           const user = JSON.parse(userStr);
-          const isHR = user.roles?.some((r: any) => r?.name === 'HR') || user.role?.name === 'HR';
-          const isSuperAdmin = user.roles?.some((r: any) => r?.name === 'SUPER_ADMIN') || user.role?.name === 'SUPER_ADMIN';
-          if (!isHR && !isSuperAdmin && user.employee?.id) {
-            url += `?requesterId=${user.employee.id}`;
+          if (user.employeeId) {
+            url += `?requesterId=${user.employeeId}`;
           }
         }
         const response = await fetch(url, {
