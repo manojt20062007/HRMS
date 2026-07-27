@@ -19,7 +19,6 @@ import reportsRoutes from './routes/reports.routes';
 import worklogRoutes from './routes/worklog.routes';
 import objectiveRoutes from './routes/objective.routes';
 import appraisalRoutes from './routes/appraisal.routes';
-import resignationRoutes from './routes/resignation.routes';
 import aiRoutes from './routes/ai.routes';
 import { tenantMiddleware } from './middlewares/tenant.middleware';
 
