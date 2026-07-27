@@ -23,7 +23,8 @@ router.post('/', async (req: any, res: any) => {
       qualifications = [],
       experiences = [],
       certificates = [],
-      experienceType, totalExperienceYears, referenceName, referenceMobile
+      experienceType, totalExperienceYears, referenceName, referenceMobile,
+      employeeId // Get employeeId to distinguish between create and update
     } = req.body;
 
     if (!email || !firstName || !lastName) {
@@ -52,13 +53,19 @@ router.post('/', async (req: any, res: any) => {
       user = await prisma.user.create({
         data: { email, password: hashedPassword, roles: { connect: { id: finalRoleId } } }
       });
-    } else if (password) {
-      // If user exists and a new password is provided, update it
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { password: hashedPassword }
-      });
+    } else {
+      if (!employeeId) {
+        // If no employeeId was provided, this is a NEW registration attempt, but the email already exists!
+        return res.status(400).json({ error: 'An employee with this email already exists.' });
+      }
+      if (password) {
+        // If user exists and a new password is provided, update it
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { password: hashedPassword }
+        });
+      }
     }
 
     // 3. Prepare Employee Data

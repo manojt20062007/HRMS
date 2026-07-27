@@ -135,6 +135,16 @@ model Employee {
   // Phase 8 Relations
   projects             EmployeeProject[]
   assets               Asset[]
+  
+  // Worklog
+  worklogs             Worklog[]
+  
+  // Performance
+  objectives           Objective[]
+  appraisals           Appraisal[]
+  
+  // Exit Management
+  resignations         Resignation[]
 }
 
 model EmployeeFamily {
@@ -456,4 +466,104 @@ model Asset {
   assignedDate    DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ==========================================
+// WORKLOG
+// ==========================================
+model Worklog {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date        DateTime
+  hours       Float
+  description String
+  status      String   @default("PENDING_L1") // PENDING_L1, PENDING_L2, APPROVED, REJECTED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// PERFORMANCE OBJECTIVES
+// ==========================================
+model Objective {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  title       String
+  weightage   Float
+  deadline    DateTime
+  status      String   @default("DRAFT") // DRAFT, SUBMITTED, APPROVED, REJECTED
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// APPRAISAL PROCESS
+// ==========================================
+model AppraisalCycle {
+  id        String   @id @default(uuid())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED
+  stage     String   @default("SELF_REVIEW") // SELF_REVIEW, MANAGER_REVIEW, REVIEWER, HR_REVIEW, CLOSED
+
+  appraisals Appraisal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appraisal {
+  id               String   @id @default(uuid())
+  cycleId          String
+  cycle            AppraisalCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  
+  employeeId       String
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  selfRating       Int?
+  selfComments     String?
+  
+  managerRating    Int?
+  managerComments  String?
+  
+  reviewerRating   Int?
+  reviewerComments String?
+  
+  hrRating         Int?
+  hrComments       String?
+  
+  status           String   @default("PENDING_SELF") // PENDING_SELF, PENDING_MANAGER, PENDING_REVIEWER, PENDING_HR, APPROVED
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@unique([cycleId, employeeId])
+}
+
+// ==========================================
+// RESIGNATION PROCESS
+// ==========================================
+model Resignation {
+  id                 String   @id @default(uuid())
+  employeeId         String
+  employee           Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  reason             String
+  resignationDate    DateTime
+  lastWorkingDay     DateTime
+  
+  status             String   @default("PENDING_L1") // PENDING_L1, PENDING_L2, APPROVED, REJECTED
+  
+  managerApproval    Boolean?
+  managerComments    String?
+  
+  hrApproval         Boolean?
+  hrComments         String?
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }

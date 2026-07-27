@@ -170,8 +170,8 @@ export const EmployeeDetailsWizard = () => {
       const result = await response.json();
 
       // Store the created employee ID so subsequent steps update the same record
-      if (result.id && !formData.employeeId) {
-        setFormData((prev: any) => ({ ...prev, employeeId: result.id }));
+      if (result.employee?.id && !formData.employeeId) {
+        setFormData((prev: any) => ({ ...prev, employeeId: result.employee.id }));
       }
 
       if (activeStep < 8) {

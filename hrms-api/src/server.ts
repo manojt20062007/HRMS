@@ -16,6 +16,11 @@ import payrollRoutes from './routes/payroll.routes';
 import projectsRoutes from './routes/projects.routes';
 import assetsRoutes from './routes/assets.routes';
 import reportsRoutes from './routes/reports.routes';
+import worklogRoutes from './routes/worklog.routes';
+import objectiveRoutes from './routes/objective.routes';
+import appraisalRoutes from './routes/appraisal.routes';
+import resignationRoutes from './routes/resignation.routes';
+import aiRoutes from './routes/ai.routes';
 import { tenantMiddleware } from './middlewares/tenant.middleware';
 
 dotenv.config();
@@ -72,6 +77,13 @@ app.use('/api/payroll', tenantMiddleware, payrollRoutes);
 app.use('/api/projects', tenantMiddleware, projectsRoutes);
 app.use('/api/assets', tenantMiddleware, assetsRoutes);
 app.use('/api/reports', tenantMiddleware, reportsRoutes);
+app.use('/api/worklog', tenantMiddleware, worklogRoutes);
+app.use('/api/objectives', tenantMiddleware, objectiveRoutes);
+app.use('/api/appraisals', tenantMiddleware, appraisalRoutes);
+app.use('/api/resignation', tenantMiddleware, resignationRoutes);
+
+// AI Routes
+app.use('/api/ai', tenantMiddleware, aiRoutes);
 
 if (require.main === module) {
   app.listen(port, () => {

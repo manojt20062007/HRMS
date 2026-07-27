@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '../../components/PageHeader';
-import { Briefcase, Send } from 'lucide-react';
+import { Briefcase, Send, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL, getTenantHeader } from '../../config';
 
 export const StaffingRequestPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export const StaffingRequestPage = () => {
     budget: '',
     justification: ''
   });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/employees', { headers: {  } })
@@ -23,12 +25,48 @@ export const StaffingRequestPage = () => {
       .catch(console.error);
   }, []);
 
+  const handleGenerateAI = async () => {
+    if (!formData.designation) {
+      alert('Please enter a Job Title / Designation first.');
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/ai/generate-jd`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getTenantHeader()
+        },
+        body: JSON.stringify({
+          designation: formData.designation,
+          department: formData.department,
+          experience: formData.experience
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(prev => ({ ...prev, justification: data.text }));
+      }
+    } catch (error) {
+      console.error('AI Generation Failed:', error);
+      alert('Failed to generate with AI.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3001/api/recruitment/staffing', {
+      const response = await fetch(`${API_BASE_URL}/api/recruitment/staffing`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getTenantHeader()
+        },
         body: JSON.stringify(formData)
       });
       if (response.ok) {
@@ -134,7 +172,18 @@ export const StaffingRequestPage = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Justification & Core Responsibilities <span className="text-red-500">*</span></label>
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">Justification & Core Responsibilities <span className="text-red-500">*</span></label>
+              <button 
+                type="button" 
+                onClick={handleGenerateAI}
+                disabled={isGenerating}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-md hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-colors disabled:opacity-50 border border-indigo-200 dark:border-indigo-800"
+              >
+                {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                {isGenerating ? 'Generating...' : 'Auto-fill with AI'}
+              </button>
+            </div>
             <textarea 
               rows={5} 
               required

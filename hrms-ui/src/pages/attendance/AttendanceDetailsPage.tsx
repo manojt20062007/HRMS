@@ -1,13 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageHeader } from '../../components/PageHeader';
 import { Calendar } from 'lucide-react';
 
-const mockDetails = [
-  { date: '09-07-2026', firstIn: '09:54 AM', lastOut: '07:30 PM', status: 'P' },
-  { date: '21-07-2026', firstIn: '09:00 AM', lastOut: '07:00 PM', status: 'P' },
-];
-
 export const AttendanceDetailsPage = () => {
+  const [details, setDetails] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      setLoading(true);
+      try {
+        const userStr = localStorage.getItem('hrms_user');
+        if (!userStr) return;
+        const user = JSON.parse(userStr);
+        const employeeId = user.employeeId;
+        if (!employeeId) return;
+
+        const response = await fetch(`http://localhost:3001/api/attendance?employeeId=${employeeId}&month=${selectedMonth}`);
+        if (response.ok) {
+          setDetails(await response.json());
+        }
+      } catch (error) {
+        console.error('Failed to fetch attendance details', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDetails();
+  }, [selectedMonth]);
+
   return (
     <div className="max-w-[1600px] mx-auto pb-10">
       <PageHeader 
@@ -21,10 +45,10 @@ export const AttendanceDetailsPage = () => {
           <div className="relative">
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <input 
-              type="text" 
-              defaultValue="July, 2026"
+              type="month" 
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
               className="w-40 pl-3 pr-9 py-1.5 bg-white dark:bg-card border border-border rounded-md text-sm outline-none focus:border-indigo-500 shadow-sm text-slate-700 cursor-pointer"
-              readOnly
             />
           </div>
         </div>
@@ -41,14 +65,29 @@ export const AttendanceDetailsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mockDetails.map((row, i) => (
-                <tr key={i} className="hover:bg-slate-50 dark:hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4 text-slate-500">{row.date}</td>
-                  <td className="px-6 py-4 text-slate-500">{row.firstIn}</td>
-                  <td className="px-6 py-4 text-slate-500">{row.lastOut}</td>
-                  <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">{row.status}</td>
-                </tr>
-              ))}
+              {loading ? (
+                <tr><td colSpan={4} className="px-6 py-8 text-slate-500 text-center font-medium">Loading attendance details...</td></tr>
+              ) : details.length === 0 ? (
+                <tr><td colSpan={4} className="px-6 py-8 text-slate-500 text-center font-medium">No attendance records found for this month.</td></tr>
+              ) : (
+                details.map((row, i) => {
+                  const inTime = row.checkIn ? new Date(row.checkIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
+                  const outTime = row.checkOut ? new Date(row.checkOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '--:--';
+                  return (
+                    <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-muted/30 transition-colors bg-white">
+                      <td className="px-6 py-4 text-slate-500">{new Date(row.date).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-slate-500">{inTime}</td>
+                      <td className="px-6 py-4 text-slate-500">{outTime}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wider 
+                          ${row.status === 'PRESENT' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                          {row.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

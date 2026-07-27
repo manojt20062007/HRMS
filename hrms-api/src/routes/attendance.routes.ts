@@ -9,17 +9,25 @@ const getPrisma = (req: any) => req.prisma;
 // ==========================================
 router.get('/', async (req: any, res: any) => {
   try {
-    // Optionally filter by date
-    const { date } = req.query;
-    let whereClause = {};
+    // Optionally filter by date, month, or employeeId
+    const { date, month, employeeId } = req.query;
+    let whereClause: any = {};
+    
+    if (employeeId) {
+      whereClause.employeeId = employeeId;
+    }
+
     if (date) {
       const targetDate = new Date(date as string);
       targetDate.setHours(0, 0, 0, 0);
       const nextDate = new Date(targetDate);
       nextDate.setDate(nextDate.getDate() + 1);
-      whereClause = {
-        date: { gte: targetDate, lt: nextDate }
-      };
+      whereClause.date = { gte: targetDate, lt: nextDate };
+    } else if (month) {
+      const [year, m] = (month as string).split('-');
+      const startDate = new Date(parseInt(year), parseInt(m) - 1, 1);
+      const endDate = new Date(parseInt(year), parseInt(m), 1);
+      whereClause.date = { gte: startDate, lt: endDate };
     }
 
     const records = await getPrisma(req).attendanceRecord.findMany({
@@ -78,6 +86,66 @@ router.post('/mark', async (req: any, res: any) => {
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ error: 'Failed to mark attendance' });
+  }
+});
+
+// Bulk update attendance statuses for a specific date
+router.post('/bulk', async (req: any, res: any) => {
+  try {
+    const { date, records } = req.body; // records: [{ employeeId, status }, ...]
+    if (!date || !records || !Array.isArray(records)) {
+      return res.status(400).json({ error: 'Date and records array are required' });
+    }
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const prisma = getPrisma(req);
+
+    // Use a transaction to upsert all records
+    const upserts = records.map((record: any) => {
+      let checkInDate = null;
+      let checkOutDate = null;
+
+      if (record.checkIn && record.checkIn !== '--:--') {
+        const [hours, minutes] = record.checkIn.split(':');
+        checkInDate = new Date(targetDate);
+        checkInDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+      }
+      if (record.checkOut && record.checkOut !== '--:--') {
+        const [hours, minutes] = record.checkOut.split(':');
+        checkOutDate = new Date(targetDate);
+        checkOutDate.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+      }
+
+      return prisma.attendanceRecord.upsert({
+        where: {
+          employeeId_date: {
+            employeeId: record.employeeId,
+            date: targetDate,
+          }
+        },
+        update: {
+          status: record.status,
+          checkIn: checkInDate,
+          checkOut: checkOutDate
+        },
+        create: {
+          employeeId: record.employeeId,
+          date: targetDate,
+          status: record.status,
+          checkIn: checkInDate,
+          checkOut: checkOutDate
+        }
+      });
+    });
+
+    await prisma.$transaction(upserts);
+
+    res.status(200).json({ message: 'Attendance updated successfully' });
+  } catch (error) {
+    console.error('Failed to bulk update attendance:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

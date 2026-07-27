@@ -32,8 +32,8 @@ export const LeaveRequestPage = () => {
       const isSuperAdmin = userObj?.roles?.some((r: any) => r?.name === 'SUPER_ADMIN') || userObj?.role?.name === 'SUPER_ADMIN';
 
       // If not HR or Admin, only show requester's own leave requests
-      if (!isHR && !isSuperAdmin && userObj?.employee?.id) {
-        leaveUrl += `?requesterId=${userObj.employee.id}`;
+      if (!isHR && !isSuperAdmin && userObj?.employeeId) {
+        leaveUrl += `?requesterId=${userObj.employeeId}`;
       }
 
       const headers = getTenantHeader();
@@ -48,8 +48,8 @@ export const LeaveRequestPage = () => {
         setEmployees(emps);
 
         // Default employee selection to self
-        if (userObj?.employee?.id) {
-          setEmployeeId(userObj.employee.id);
+        if (userObj?.employeeId) {
+          setEmployeeId(userObj.employeeId);
         } else if (emps.length > 0) {
           setEmployeeId(emps[0].id);
         }
@@ -124,7 +124,7 @@ export const LeaveRequestPage = () => {
               <label className="block text-xs font-medium text-slate-500 mb-1">Employee</label>
               {!currentUser?.roles?.some((r: any) => r?.name === 'HR' || r?.name === 'SUPER_ADMIN') && currentUser?.role?.name !== 'HR' && currentUser?.role?.name !== 'SUPER_ADMIN' ? (
                 <div className="w-full px-3 py-2 border rounded-md text-sm bg-slate-100 text-slate-700 font-medium">
-                  {currentUser?.employee ? `${currentUser.employee.firstName} ${currentUser.employee.lastName}` : (currentUser?.email || 'N/A')}
+                  {currentUser?.employeeId ? `${currentUser.firstName} ${currentUser.lastName}` : (currentUser?.email || 'N/A')}
                 </div>
               ) : (
                 <select value={employeeId} onChange={e => setEmployeeId(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm bg-white dark:bg-card">
@@ -174,6 +174,7 @@ export const LeaveRequestPage = () => {
                 <th className="px-4 py-4 font-semibold">Reason <span className="text-[10px] text-slate-400 inline-block ml-1">↑↓</span></th>
                 <th className="px-4 py-4 font-semibold">Applied Date <span className="text-[10px] text-slate-400 inline-block ml-1">↑↓</span></th>
                 <th className="px-4 py-4 font-semibold">Status <span className="text-[10px] text-slate-400 inline-block ml-1">↑↓</span></th>
+                <th className="px-4 py-4 font-semibold"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -187,9 +188,6 @@ export const LeaveRequestPage = () => {
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-700">{row.employee?.firstName} {row.employee?.lastName}</div>
                       <div className="text-xs text-slate-500">{row.employee?.employeeIdString}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded inline-block">ROLE</div>
                     </td>
                     <td className="px-6 py-4 text-slate-600 font-medium">{new Date(row.startDate).toLocaleDateString()}</td>
                     <td className="px-6 py-4 text-slate-500">1 day</td>
